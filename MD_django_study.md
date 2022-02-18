@@ -7,4 +7,8 @@
 프론트엔드: HTML, CSS, JS 사용
 백엔드: Python 사용
 
+cmd 들어가기
+cd first-django 입력
+venv\Scripts\activate 입력
+
 ```
