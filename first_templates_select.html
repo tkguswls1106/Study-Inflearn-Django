@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>
+        {% if number|divisibleby:2 %}  <!-- 해당값이 2로 나누어 지느냐 -->
+            짝수입니다.
+        {% else %}
+            홀수입니다.  <!-- context = {'number':3} 이므로, 홀수입니다 가 출력된다. -->
+        {% endif %}  <!-- html에서는 if문 사용할때, if, elif, else 순으로 사용하고 마지막에 endif로 닫아준다. -->
+    </p>
+    <p>
+        <a href = "{% url 'result' %}"><button>결과보기</button></a>
+    </p>
+</body>
+</html>
