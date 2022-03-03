@@ -59,7 +59,3 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 {% url 'result' %} 이런것처럼 메소드를 호출해서 출력할 수 있게하는것을 템플레이팅 이라고 한다.
 
 ```
-
-Django 강의의 '스태틱 파일 띄우기' 영상 시청 및 공부 완료. 관련 필기내용 정리.
-cmd virtualenv 관련 설명 링크: https://ssse.tistory.com/36
-virtualenv 굳이 폴더 안까지들어가지말고 기본 cd에서 적용해서 파이썬 라이브러리 생성해보자.
