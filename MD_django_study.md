@@ -26,7 +26,7 @@ django-admin startproject {프로젝트 이름} {프로젝트가 생성될 경�
 python manage.py runserver  // 프로젝트를 실행한다. cmd에 떴던, 예를들어 127.0.0.1:8000 를 인터넷 주소창에 입력하면 장고 사이트로 이동한다.
 
 <파이참에서 venv 켜둔 상태>
-python manage.py startapp first  // first-django 폴더안에 first라는 폴더와 부속파일들이 생성된다.
+python manage.py startapp first  // first-django 폴더안에 first라는 폴더와 부속파일들이 생성된다.(first라는 웹앱 생성)
 			      // 이제 여기 안에 우리가 필요한 코드들을 작성하고, 화면이나 실제 웹사이트의 로직 등을 구현하게 한다.
 			      // 만약 에러가 나면, Windows Powershell을 관리자로 실행하고, Set-ExecutionPolicy Unrestricted 를 입력하고, y를 입력하면 에러가 안난다.
 
@@ -59,3 +59,7 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 {% url 'result' %} 이런것처럼 메소드를 호출해서 출력할 수 있게하는것을 템플레이팅 이라고 한다.
 
 ```
+
+Django 강의의 '스태틱 파일 띄우기' 영상 시청 및 공부 완료. 관련 필기내용 정리.
+cmd virtualenv 관련 설명 링크: https://ssse.tistory.com/36
+virtualenv 굳이 폴더 안까지들어가지말고 기본 cd에서 적용해서 파이썬 라이브러리 생성해보자.
