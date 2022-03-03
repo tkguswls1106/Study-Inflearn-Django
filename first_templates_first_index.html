@@ -1,0 +1,23 @@
+{% load static %}  <!-- 템플릿의 최상단에 우리가 static을 사용할 것이라고 먼저 선언해주어야한다. -->
+<!DOCTYPE html>
+<html lang="ko">  <!-- 파이참에서 en 영어보다 ko 한국어로 바꿔주자. -->
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>Hello World!</p>
+
+    <img style = "width:200px"; src = "{% static 'first/image.jpg' %}" alt = "프로그래밍 사진"/>  <!-- static의 image.jpg 를 불러온다. -->
+    <!-- 참고로 현재는 웹앱이 1개만 있어서(first 웹앱) 괜찮지만, 나중에 다른 웹앱 폴더를 하나 더 생성했는데, 만약 그 웹앱의 static 폴더에
+    같은 이름의 image.jpg 파일이 존재하면, 충돌이 일어날 수 있기때문에, 처음 웹앱인 first의 static 폴더안에 'first웹앱의 것' 이라는 의미로
+    first라는 폴더를 하나 만들어주는게 좋다. 참고로 static 뿐만 아니라 templates 도 마찬가지 이유로 충돌이 날 수 있기 때문에, 마찬가지로 templates 폴더
+    안에도 first 폴더를 하나 만들어주자. -->
+
+    <p>{{ current_date }}</p>
+    <p>{{ current_date|date:"Y년 m월 d일 H시 i분 s초" }}</p>
+
+    <a href = "{% url 'select' %}">시작하기!</a>  <!-- <a href = "/select/">시작하기!</a> 이렇게써도 되긴하지만, 장고에서는 저렇게쓰자. -->
+                                                <!-- 이건 first 앱의 url.py의 path의 name="select"에서 가져온 것이다. -->
+</body>
+</html>
