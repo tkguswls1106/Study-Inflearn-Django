@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로또 번호</title>
+    <link rel = "stylesheet" type = "text/css" href = "{% static 'first/styles.css' %}">  <!-- 블락 -->
+</head>
+<body>
+    {% block content %}  <!-- content라는 이름의 block을 선언해줌. 블락 범위는 여기부터 endblock까지이다. 블락 범위의 바깥쪽 부분이 복사된다. -->
+    {% endblock %}
+</body>
+</html>
