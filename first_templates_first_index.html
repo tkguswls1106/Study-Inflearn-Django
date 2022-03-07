@@ -1,11 +1,6 @@
+{% extends  'first/base.html' %}  <!-- base.html의 블락 코드로 확장(extends) 시켜줄 생각으로 작성한 코드 줄이다. -->
 {% load static %}  <!-- 템플릿의 최상단에 우리가 static을 사용할 것이라고 먼저 선언해주어야한다. -->
-<!DOCTYPE html>
-<html lang="ko">  <!-- 파이참에서 en 영어보다 ko 한국어로 바꿔주자. -->
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% block content %}
     <p>Hello World!</p>
 
     <img style = "width:200px"; src = "{% static 'first/image.jpg' %}" alt = "프로그래밍 사진"/>  <!-- static의 image.jpg 를 불러온다. -->
@@ -19,5 +14,4 @@
 
     <a href = "{% url 'select' %}">시작하기!</a>  <!-- <a href = "/select/">시작하기!</a> 이렇게써도 되긴하지만, 장고에서는 저렇게쓰자. -->
                                                 <!-- 이건 first 앱의 url.py의 path의 name="select"에서 가져온 것이다. -->
-</body>
-</html>
+{% endblock %}
