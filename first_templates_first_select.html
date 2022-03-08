@@ -7,10 +7,12 @@
                                           <!-- 그리고 name을 "number"로 적었으므로, 나중에 버튼을 누르게 되면
                                           url 뒤에 /?number=숫자 이런식으로 적힌다.
                                           예를들어 3을 입력했으면, http://127.0.0.1:8000/result/?number=3 이런식인 것이다. -->
-    <button type="'submit">결과보기</button>
+    <button type="submit">결과보기</button>
 </form>
+{% endblock %}
 
     <!--
+    - 원래 body 태그안에 적었던거 -
     <p>
         {% if number|divisibleby:2 %}  // 해당값이 2로 나누어 지느냐
             짝수입니다.
@@ -22,4 +24,3 @@
         <a href = "{% url 'result' %}"><button>결과보기</button></a>
     </p>
     -->
-{% endblock %}
