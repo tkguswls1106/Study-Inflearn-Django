@@ -23,14 +23,17 @@ def index(request):
     context = {
         'current_date': now
     }
-    return render(request, 'index.html', context)  # render와 관련된 상세설명은 MD_django_study.md 에 적어놓았다.
+    return render(request, 'first/index.html', context)  # render와 관련된 상세설명은 MD_django_study.md 에 적어놓았다.
                                                    # 여기서 다음 메소드로 넘어갈때 2줄을 띄우는것을 추천한다.
 # 1줄 엔터
 # 2줄 엔터
 def select(request):  # 페이지를 여러개로 만들기위해 계속 메소드를 만드는 중이다.
-    context = {'number':3}
-    return render(request, 'select.html', context)
+    context = {}
+    return render(request, 'first/select.html', context)
 
 def result(request):
-    context = {'numbers':[1,2,3,4,5,6]}
-    return render(request, 'result.html', context)
+    chosen = request.GET['number']
+    context = {
+        'numbers':[chosen, 2, 3, 4, 5, 6]
+    }
+    return render(request, 'first/result.html', context)
