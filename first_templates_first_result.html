@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="ko">  <!-- 파이참에서 en 영어보다 ko 한국어로 바꿔주자. -->
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends  'first/base.html' %}  <!-- base.html의 블락 코드로 확장(extends) 시켜줄 생각으로 작성한 코드 줄이다. -->
+{% load static %}  <!-- 템플릿의 최상단에 우리가 static을 사용할 것이라고 먼저 선언해주어야한다. -->
+{% block content %}
+    <h3>추천 번호는 다음과 같습니다.</h3>
+    <div style = "text-align:left">
     <ul>
         {% for num in numbers %}  <!-- if나 for을 적을때는 % 를 사용하지만, 바로 밑의 줄처럼 출력만을 원할때는 %를 사용하지 않고 중괄호 {}를 두 번 사용한다. -->
         <li>{{ num }}</li>  <!-- { num } 이렇게만 쓰면 진짜 말그대로 { num } 이렇게 출력된다. -->
                             <!-- 출력만을 원할때는 %를 사용하지 않고 중괄호 {}를 두 번 사용한다. -->
         {% endfor %}  <!-- for 썼으면 마지막에 endfor로 닫아주자. -->
     </ul>
-</body>
-</html>
+    </div>
+{% endblock %}
