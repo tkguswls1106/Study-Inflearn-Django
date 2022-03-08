@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.template import loader
 from datetime import datetime
 
+import random  # 로또 번호를 위해 random을 import함.
+
 
 # Create your views here.
 '''
@@ -32,8 +34,25 @@ def select(request):  # 페이지를 여러개로 만들기위해 계속 메소�
     return render(request, 'first/select.html', context)
 
 def result(request):
-    chosen = request.GET['number']
+    chosen = int(request.GET['number'])  # GET이나 POST라는 파라미터를 통해서 전달되는 값은 string형태이므로
+                                         # 숫자를 가져오기위해서는, int형으로 감싸주어야 한다.
+
+    results = []
+    if chosen >= 1 and chosen <= 45:
+        results.append(chosen)
+
+        box = []
+        for i in range(0, 45):
+            if chosen != i+1:  # 만약 chosen이 i+1 과 같지 않다면,
+                box.append(i+1)  # 박스에 i+1 값을 집어넣어라.
+                                 # 박스는 이걸보아, chosen과 중복되지 않는 수들을 걸러서 박스에 넣는 용도로 사용되는것 같다.
+
+        random.shuffle(box)  # 박스를 셔플함.
+
+        while len(results) < 6:
+            results.append(box.pop())  # box.pop()은 box에서 랜덤으로 하나 지운 요소를 반환함.
+
     context = {
-        'numbers':[chosen, 2, 3, 4, 5, 6]
+        'numbers':results
     }
     return render(request, 'first/result.html', context)
