@@ -19,7 +19,8 @@ from django.urls import path, include  # django.urls에서 path 뿐만아니라 
 from first import views  # first라는 패키지 안에 있는 views를 import한다.
 
 urlpatterns = [
-    path('', include('first.urls')),  # first 패키지 안의 urls.py 파일을 참조하겠다는 뜻이다.
+    path('first/', include('first.urls')),  # first 패키지 안의 urls.py 파일을 참조하겠다는 뜻이다.
                                       # 그리고 여기에 path 입력한다음에 마지막에 , 를 입력하는걸 잊지말자.
+    path('second/', include('second.urls')),
     path('admin/', admin.site.urls),
 ]
