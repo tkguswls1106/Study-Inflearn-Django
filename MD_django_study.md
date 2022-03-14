@@ -119,7 +119,7 @@ post  // 이거 치면 이제 <Post: Post object (1)> 이라고 뜨는데 여기
         // 즉, <Post: Post object (1)>는 Post의 primary_key를 (1)로 지정한 것이라는 뜻이다.
 post.save()  // 꼭 save를 해주어야 실제로 저장이 된다. 이제 찾아보면 db.sqlite3 파일에서 this is titlethis is content 가 적혀있는것을 확인할 수 있다.
 posts = Post.objects.all()  // 메소드 호출
-posts  // 입력하면 <QuerySet [<Post: Post object (1)>]> 이라고 뜬다.
+posts  // 입력하면 <QuerySet [<Post: Post object (1)>]> 이라고 뜬다. 이런 방식으로 나중에 계속 post = Post.objects.create(title='this is title2', content='this is content') 와 post.save() 를 계속 써주면 <QuerySet [<Post: Post object (1)>]> 안에 다른 목록이 더 뜨게된다.
 posts[0].title  // 입력하면 'this is title' 출력됨.
 posts[0].content  // 입력하면 'this is content' 출력됨.
 
