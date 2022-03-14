@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Second</title>
+</head>
+<body>
+    {% for item in items %}  <!-- 여기서 items는 배열은 아니지만, 배열 형태처럼 비슷하게 사용이 가능하다. 그래서 for문 사용이 가능한 것이다. -->
+    <div>
+        <h4>
+            {{ item.title }}
+        </h4>
+        <p>
+            {{ item.content }}
+        </p>
+    </div>
+    {% endfor %}
+</body>
+</html>
