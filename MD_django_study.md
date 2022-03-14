@@ -98,4 +98,13 @@ python manage.py makemigrations  // 정의한 models.py에 있는 모델링 코�
 			           // 만약 models.py 파일을 계속 수정하게되면 그때그때마다 python manage.py makemigrations를 호출하여 변화되는 코드들을 계속 0001_initial.py 파일에 업데이트 시켜줄수 있다. 데이터베이스 업데이트.
 python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되면 db.sqlite3 이라는 파일이 생성된다.(근데 나는 원래 생성되어있었음.)
 
+<client가 server에 http 요청을 했을때의 그 흐름>
+1. 예를들어 클라이언트가 서버에 abc.com 사이트에 대한 데이터를 달라는 요청을 함.
+2. 장고 웹앱에서 url conf 모듈을 확인한다. (예를들어 abc.com/뒤에추가주소 이런게 있는지, path가 뭐가 있는지 등등)
+3. 이 url에 맵핑된 뷰를 결정한다. (url.py 파일을 읽어들여서 여기에 정의된 내용대로 뷰 메소드를 결정하게 된다.)
+4. 메소드가 실행된다. (views.py 메소드를 말한다.) 여기서 만약에 필요한 경우에는 모델을 통해서 데이터를 처리하게 된다.
+5. template를 기반으로 해서 최종 html 코드를 생성하게 된다. (이는 render 함수에서 일어나게 된다.)
+그렇게 마지막에 render 메소드에서 우리가 정의한 template 파일이랑 뷰 메소드의 결과값이 합쳐져서 최종 html 코드를 생성된다.
+6. 생성된 최종 html 코드를 클라이언트에게 되돌려준다.
+
 ```
