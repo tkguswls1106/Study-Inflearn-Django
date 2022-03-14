@@ -107,4 +107,22 @@ python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되�
 그렇게 마지막에 render 메소드에서 우리가 정의한 template 파일이랑 뷰 메소드의 결과값이 합쳐져서 최종 html 코드를 생성된다.
 6. 생성된 최종 html 코드를 클라이언트에게 되돌려준다.
 
+<venv 켜둔 상태>
+python manage.py shell  // 장고 코드를 파일로 따로 작성하지 않아도 쉘(shell)을 이용하여 InteractiveConsole에서 장고 프레임워크를 활용한 여러가지 코드를 바로 대화형으로 실행해볼수 있다.
+<shell 켜둔 상태>
+from second.models import Post
+post = Post.objects.create(title='this is title', content='this is content')
+post  // 이거 치면 이제 <Post: Post object (1)> 이라고 뜨는데 여기서 (1)이 뭔지 이걸 설명해보자면,
+        // 예를들어 학교교실에 김철수라는 학생이 10명이 있는데, 선생님이 김철수 학생을 호명하면 10명중 누구를 부르는지 명확하질않으니까 혼동되지않도록 각각 철수에게 출석번호(아이디 번호)를 붙여둔것이다.
+        // 이처럼 특정 데이터를 식별할 수 있도록 id를 제공해주는것을 primary_key 라고 한다.
+        // second_migrations_0001_initial.py 에서 CreatModel 부분의 'id' 부분의 primary_key (줄여서 pk) 가 있는데, 'id'라는 테이블에 있는 특정 속성은 primary_key라고 선언한 것이다. 정확하게 해당 데이터를 꺼내오기위한 아이디를 부여한 것이다.
+        // 즉, <Post: Post object (1)>는 Post의 primary_key를 (1)로 지정한 것이라는 뜻이다.
+post.save()  // 꼭 save를 해주어야 실제로 저장이 된다. 이제 찾아보면 db.sqlite3 파일에서 this is titlethis is content 가 적혀있는것을 확인할 수 있다.
+posts = Post.objects.all()  // 메소드 호출
+posts  // 입력하면 <QuerySet [<Post: Post object (1)>]> 이라고 뜬다.
+posts[0].title  // 입력하면 'this is title' 출력됨.
+posts[0].content  // 입력하면 'this is content' 출력됨.
+
+레코드: 특정 데이터 하나를 하나의 레코드라고 부른다. 테이블은 여러 레코드의 집합이다.
+
 ```
