@@ -1,6 +1,6 @@
 # [Django 공부 부분]
 
-**장고 강의 영상 사이트: https://www.inflearn.com/course/django-course#curriculum**
+**장고 인프런 강의 영상 사이트: https://www.inflearn.com/course/django-course#curriculum**
 ```
 {}는 {}안에 들어가있는 글자대로 예시를 적어주면된다.
 //는 그 뒤에 설명을 적어주겠다.
