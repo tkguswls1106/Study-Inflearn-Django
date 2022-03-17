@@ -21,7 +21,7 @@ virtualenv venv  // venv 설치
 venv\Scripts\activate 입력
 
 <venv 켜둔 상태>
-pip intall django  // 장고를 다운받아준다.
+pip install django  // 장고를 다운받아준다.
 django-admin startproject {프로젝트 이름} {프로젝트가 생성될 경로}  // 현재위치경로 그대로에 프로젝트를 생성할경우에는 경로 자리에 .점만 적어주면된다.
 							  // 예로써 django-admin startproject firstdjango . 를 입력하겠다.
 							  // 이렇게 생성된 firstdjango 폴더는 전체 프로젝트의 코드이기때문에, 어떠한 환경변수들이나 세팅, 그리고 각종 데이터베이스의 연결에 필요한 정보들을 집어넣게 된다.
