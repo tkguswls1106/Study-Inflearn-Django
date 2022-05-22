@@ -16,6 +16,9 @@ context = {}
 return HttpResponse(template.render(context, request))
 이것도 적어주기
 ->
+메소드에 loader와 render 과정까지 모두 끝났다면, 해당 메소드가 들어있는 views.py 파일이 들어있는 웹앱의 이름을
+프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자. 예를들어 'firstapp', 이런식으로 말이다.
+그래야지 이제 장고에서 템플릿 디렉토리를 인식하여 사용할 수 있게 된다.
 
 <라우팅 과정>
 사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정 -> 해당 웹앱의 urls.py로 이동
@@ -33,6 +36,6 @@ return HttpResponse(template.render(context, request))
 예를들어 사이트 페이지를 여러개 만들어 띄우고 싶다면, 해당 웹앱의 views.py 파일에 def 메소드를 그만큼 메소드 종류를 추가하면된다.
 
 ------------------------------------------
-현재 '템플릿 기본' 강의의 2:42 까지 시청함.
+현재 '템플릿 기본' 강의 모두 시청함.
 
 
