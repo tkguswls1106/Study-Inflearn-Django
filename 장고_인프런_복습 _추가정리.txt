@@ -1,0 +1,38 @@
+<<장고 인프런 복습 추가 정리>>
+
+<장고의 백엔드 프론트엔드>
+웹앱의 view.py 파일에는 백엔드 코드
+웹앱에 templates 라는 디렉토리 안의 html 파일에는 프론트엔드 코드
+
+<필요한 과정 (대부분의 from import나 그런건 생략했음.)>
+각 웹앱에 urls.py 파일 만들기.
+->
+각 웹앱에 templates 라는 디렉토리 생성하기. 그 안에 html파일(예를들어 index.html 파일) 생성하면됨.
+->
+해당 웹앱의 views.py 파일에 from django.template import loader 적어주기.
+->
+해당 웹앱의 views.py 파일의 해당 def 메소드(함수) 안에 template = loader.get_template('index.html') 처럼 적어주기.
+context = {}
+return HttpResponse(template.render(context, request))
+이것도 적어주기
+->
+
+<라우팅 과정>
+사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정 -> 해당 웹앱의 urls.py로 이동
+-> 해당 웹앱의 views.py로 이동 -> def 메소드(함수) 실행
+-> 해당 메소드의 리턴값인 render의 매개변수중 html 파일을, 해당 웹앱의 templates 디렉토리에서 찾아, 해당 html 파일을 실행시킴.
+-> 그러면 접속 사이트에 해당 html 파일의 내용이 실행되어 나타남.
+
+<템플릿과 loader와 render>
+템플릿의 html파일을 불러오는건 loader이고, 템플릿에다가 다시 전달해주는게 render 이다.
+=> 결론:
+'웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
+'웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 변수의 값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
+
+<기타 등등 정리>
+예를들어 사이트 페이지를 여러개 만들어 띄우고 싶다면, 해당 웹앱의 views.py 파일에 def 메소드를 그만큼 메소드 종류를 추가하면된다.
+
+------------------------------------------
+현재 '템플릿 기본' 강의의 2:42 까지 시청함.
+
+
