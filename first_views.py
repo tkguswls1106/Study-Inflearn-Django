@@ -15,7 +15,8 @@ def index(request):  # 내가 이 메소드 전체를 대강 추측해서 해석
     template = loader.get_template('index.html')
     now = datetime.now()
     context = {
-        'current_date': now
+        'current_date': now  # 딕셔너리 키:값. 이는 파이썬 코드인데 html 코드로 전달해주기 위해 나중에 템플릿 안의 html 파일에서 {{ corrent_date }} 이렇게 사용하여 
+                             # 장고 템플릿 태그로 {{ }} 로 중괄호 2개를 감싸서 사용한다.
     }
     return HttpResponse(template.render(context, request))
 '''  # 바로 밑의 메소드에서 같은 내용으로 길이를 단축해서 적을거라 전부 주석처리 했음.
