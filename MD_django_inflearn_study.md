@@ -57,7 +57,11 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 첫번째 파라미터로 request를, 두번째 파라미터로 템플릿(index.html)을 받아들인다.
 여기서 템플릿은 index.html으로 지정되어 있는데, 이는 templates폴더 안에 있는 index.html을 가리키게 된다.
 세번째 context는 템플릿인 index.html에 전달할 데이터를 Dictionary로 전달하게 된다.
-=> 결론:
+장고 템플릿은 html 코드인데, views.py 파일 안의 메소드는 파이썬 코드로 적혀있으므로, 장고 템플릿 태그라는걸 사용한다.
+템플릿 태그는 파이썬코드를 HTML로 변환해서 빠르고 쉽게 파이썬의 동적인 데이터를 사용한 웹사이트를 만들 수 있게해준다.
+그래서 나중에 context 변수(딕셔너리)의 키 값을, 템플릿 디렉토리의 html 파일에서 사용할때에 {{ 키(' '는 안써도된다) }} 이런식으로
+{{ }} 로 중괄호 2개를 감싸서 사용한다.
+=> loader과 render 결론:
 '웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
 '웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 변수의 값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
 
