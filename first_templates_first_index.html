@@ -9,7 +9,7 @@
     first라는 폴더를 하나 만들어주는게 좋다. 참고로 static 뿐만 아니라 templates 도 마찬가지 이유로 충돌이 날 수 있기 때문에, 마찬가지로 templates 폴더
     안에도 first 폴더를 하나 만들어주자. -->
 
-    <p>{{ current_date }}</p>
+    <p>{{ current_date }}</p>  <!-- 장고 템플릿 태그라서 {{ 키 }} 이렇게 사용함 -->
     <p>{{ current_date|date:"Y년 m월 d일 H시 i분 s초" }}</p>
 
     <a href = "{% url 'select' %}">시작하기!</a>  <!-- <a href = "/select/">시작하기!</a> 이렇게써도 되긴하지만, 장고에서는 저렇게쓰자. -->
