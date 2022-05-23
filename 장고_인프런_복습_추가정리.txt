@@ -2,7 +2,8 @@
 
 <장고의 백엔드 프론트엔드>
 웹앱의 view.py 파일에는 백엔드 코드
-웹앱에 templates 라는 디렉토리 안의 html 파일에는 프론트엔드 코드
+웹앱에 templates 라는 디렉토리 안의 html파일에는 프론트엔드 코드
+웹앱에 static 이라는 디렉토리 안에는 정적인 콘텐츠인 css파일, js파일, 이미지파일을 넣으며, 이는 프론트엔드 코드
 
 <필요한 과정 (대부분의 from import나 그런건 생략했음.)>
 각 웹앱에 urls.py 파일 만들기.
@@ -15,10 +16,23 @@
 context = {}
 return HttpResponse(template.render(context, request))
 이것도 적어주기
+하지만 나중에 from django.shortcuts import render 덕분에 코드 단축이 가능해진다.
 ->
 메소드에 loader와 render 과정까지 모두 끝났다면, 해당 메소드가 들어있는 views.py 파일이 들어있는 웹앱의 이름을
 프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자. 예를들어 'firstapp', 이런식으로 말이다.
 그래야지 이제 장고에서 템플릿 디렉토리를 인식하여 사용할 수 있게 된다.
+->
+각 웹앱에 static 이라는 디렉토리 생성하기.
+->
+프로젝트 폴더의 settings.py 파일에 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")
+]
+적어주기
+->
+만약 웹앱이 여러개가 되면, 나중에 static import 한것때문에 웹앱끼리 스태틱 파일 불러올때 충돌이 일어날 수 있으니,
+각 웹앱의 static 디렉토리 안에 특정이름을 지은 디렉토리를 하나 더 만들어주고, 원래 static 디렉토리 안에 들어있던 모든 정적 콘텐츠 파일들을 모두 해당 디렉토리로 옮겨준다.
+위의 static 디렉토리의 경우처럼, templates 디렉토리의 html 파일들도 똑같은 방법으로 진행해준다.
 
 <라우팅 과정>
 사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정 -> 해당 웹앱의 urls.py로 이동
@@ -30,7 +44,7 @@ return HttpResponse(template.render(context, request))
 템플릿의 html파일을 불러오는건 loader이고, 템플릿에다가 다시 전달해주는게 render 이다.
 => 결론:
 '웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
-'웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 변수의 값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
+'웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 딕셔너리 변수의 키값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
 
 <템플레이팅 중괄호 문법 (렌더링하며 파이썬 코드를 html파일에서 사용할때)>
 => 장고 템플레이팅 중괄호 정리:
@@ -42,6 +56,6 @@ return HttpResponse(template.render(context, request))
 예를들어 사이트 페이지를 여러개 만들어 띄우고 싶다면, 해당 웹앱의 views.py 파일에 def 메소드를 그만큼 메소드 종류를 추가하면된다.
 
 ------------------------------------------
-현재 인프런에서 '템플릿 조건 처리' 강의까지 시청 완료함.
+현재 인프런에서 '스태틱 파일 띄우기' 강의까지 시청 완료함.
 
 
