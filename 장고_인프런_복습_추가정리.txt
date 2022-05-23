@@ -55,7 +55,14 @@ STATICFILES_DIRS = [
 <기타 등등 정리>
 예를들어 사이트 페이지를 여러개 만들어 띄우고 싶다면, 해당 웹앱의 views.py 파일에 def 메소드를 그만큼 메소드 종류를 추가하면된다.
 
+<form action="{% url 'result' %}" method="get">   <!-- action은 method인 get으로 반환받은 값을 어느 path로 전달하면 될지 적어주는 것이다. -->
+    <input type="number" name="number"/>        <!-- number 타입을 입력받게 되어있다. -->
+    					     <!-- 과정을 설명하자면, 숫자를 입력해주면, urls.py 파일의 path('select/')부분을 찾아가고, 그 안에 적힌 views.select 때문에,
+    					      views.py 파일의 def select 메소드의 request 매개변수 값으로 해당 입력한 숫자의 값이 전달되어 해당 메소드를 실행하게 되는것이다. -->
+    <button type="submit">결과보기</button>
+</form>
+
 ------------------------------------------
-현재 인프런에서 '스태틱 파일 띄우기' 강의까지 시청 완료함.
+현재 인프런에서 '로또 번호 출력 페이지 만들기' 강의까지 시청 완료함.
 
 
