@@ -7,6 +7,8 @@
                                           <!-- 그리고 name을 "number"로 적었으므로, 나중에 버튼을 누르게 되면
                                           url 뒤에 /?number=숫자 이런식으로 적힌다.
                                           예를들어 3을 입력했으면, http://127.0.0.1:8000/result/?number=3 이런식인 것이다. -->
+    <!-- 과정을 설명하자면, 숫자를 입력해주면, urls.py 파일의 path('select/')부분을 찾아가고, 그 안에 적힌 views.select 때문에,
+    views.py 파일의 def select 메소드의 request 매개변수 값으로 해당 입력한 숫자의 값이 전달되어 해당 메소드를 실행하게 되는것이다. -->
     <button type="submit">결과보기</button>
 </form>
 {% endblock %}
