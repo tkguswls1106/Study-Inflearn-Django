@@ -65,6 +65,8 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 단, 장고 템플릿으로 html 파일에서 렌더링하는 과정에서, a태그의 url로 name값으로 변수를 넣어주거나, if 조건문이나 for while 반복문처럼 파이썬 문법의 코드를 사용할때, {% %} 이런식으로 중괄호와 %로 감싸주는 형식으로 사용한다.
 그리고 마지막에 {% endfor %} 이나 {% endif %} 같은 end를 적어주어야한다.
 그리고 렌더링한 변수를 그저 출력만 하고싶을때만 {{ }} 이렇게 중괄호를 두번을 써주는 것이다.
+위의 a태그 렌더링 중괄호의 예를 하나 들어보자면,
+<a href = "{% url 'select' %}">시작하기!</a> 가 있다.
 => loader과 render 결론:
 '웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
 '웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 변수의 값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
@@ -74,6 +76,19 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 block(블락): 페이지마다 반복되는 디자인과 코드 등등이 있다. 그런 html 코드들을 한곳에 모아두고 재사용할 수 있도록 도와주는 개념을 블락이라고 한다.
 지정한 A.html의 블락 범위 바깥쪽 부분이 동일하게 불러와지는 방식이며, 그로 인해 다른 B.html에서 블락 범위를 지정하면 그 지정한 블락 범위 바깥쪽 부분이 A.html 블락 바깥쪽 범위 내용과 동일하게 불러와지는 것이다.
 그니까 예를들어 body 태그를 제외한 부분을 블락으로 불러와서 사용할 수 있는데, 그러면 다른 html 파일에서는 body 태그 안의 내용만 코드 작성하면 된다.
+
+extends는 자바의 상속처럼 보면 된다.
+예를들어 템플릿 디렉토리의 index.html 파일에
+{% extends  'first/base.html' %} 라고 적혀있다면,
+base.html 파일의
+{% block content %}
+{% endblock %}
+이 바깥쪽 부분이 복사(상속)되어,
+index.html 파일의
+{% block content %}
+{% endblock %}
+바깥부분에 복사한부분이 붙여넣기되는 것이다.
+그래서 웬만하면 base.html 파일의 {% block content %}{% endblock %} 부분은 body 태그 안에 쓰여진다.
 
 block 사이에 주석을 문단으로 길게 넣으면 이상하게 에러가 난다.
 
