@@ -13,5 +13,5 @@
     <p>{{ current_date|date:"Y년 m월 d일 H시 i분 s초" }}</p>
 
     <a href = "{% url 'select' %}">시작하기!</a>  <!-- <a href = "/select/">시작하기!</a> 이렇게써도 되긴하지만, 장고에서는 저렇게쓰자. -->
-                                                <!-- 이건 first 앱의 url.py의 path의 name="select"에서 가져온 것이다. -->
+                                                <!-- 이건 first 앱의 urls.py의 path의 name="select"에서 가져온 것이다. -->
 {% endblock %}
