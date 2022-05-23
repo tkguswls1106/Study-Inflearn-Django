@@ -2,7 +2,7 @@
 {% block content %}
 <p>수를 하나 입력해주세요.</p>
 
-<form action="{% url 'result' %}" method="get">  <!-- 여기서 form 태그의 역할은 수를 하나 입력받게 할 것이다. -->
+<form action="{% url 'result' %}" method="get">  <!-- 여기서 form 태그의 역할은 수를 하나 입력받게 할 것이다. action은 method인 get으로 반환받은 값을 어느 path로 전달하면 될지 적어주는 것이다. -->
     <input type="number" name="number"/>  <!-- input type="button" 과 달리, 이건 number 타입을 입력받게 되어있다. -->
                                           <!-- 그리고 name을 "number"로 적었으므로, 나중에 버튼을 누르게 되면
                                           url 뒤에 /?number=숫자 이런식으로 적힌다.
