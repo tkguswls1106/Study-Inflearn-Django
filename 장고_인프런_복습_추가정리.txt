@@ -7,6 +7,7 @@
 
 <필요한 과정 (대부분의 from import나 그런건 생략했음.)>
 각 웹앱에 urls.py 파일 만들기.
+그리고 각 웹앱마다 프로젝트의 url.py로 해당 웹앱의 url.py를 서로 path include 연결시켜주어야함.
 ->
 각 웹앱에 templates 라는 디렉토리 생성하기. 그 안에 html파일(예를들어 index.html 파일) 생성하면됨.
 ->
@@ -21,6 +22,7 @@ return HttpResponse(template.render(context, request))
 메소드에 loader와 render 과정까지 모두 끝났다면, 해당 메소드가 들어있는 views.py 파일이 들어있는 웹앱의 이름을
 프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자. 예를들어 'firstapp', 이런식으로 말이다.
 그래야지 이제 장고에서 템플릿 디렉토리를 인식하여 사용할 수 있게 된다.
+그리고 이뿐만아니라, 예를들어 'secondapp'이라는 웹앱에서 models.py 파일에다가 뭘 적는다면, 그 'secondapp'도 프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자.
 ->
 각 웹앱에 static 이라는 디렉토리 생성하기.
 ->
@@ -35,8 +37,8 @@ STATICFILES_DIRS = [
 위의 static 디렉토리의 경우처럼, templates 디렉토리의 html 파일들도 똑같은 방법으로 진행해준다.
 
 <라우팅 과정>
-사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정 -> 해당 웹앱의 urls.py로 이동
--> 해당 웹앱의 views.py로 이동 -> def 메소드(함수) 실행
+사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정(그래서 각 웹앱마다 프로젝트의 url.py로 path include 연결시켜주어야함)
+-> 해당 웹앱의 urls.py로 이동 -> 해당 웹앱의 views.py로 이동 -> def 메소드(함수) 실행
 -> 해당 메소드의 리턴값인 render의 매개변수중 html 파일을, 해당 웹앱의 templates 디렉토리에서 찾아, 해당 html 파일을 실행시킴.
 -> 그러면 접속 사이트에 해당 html 파일의 내용이 실행되어 나타남.
 
@@ -63,6 +65,6 @@ STATICFILES_DIRS = [
 </form>
 
 ------------------------------------------
-현재 인프런에서 '로또 번호 출력 페이지 만들기' 강의까지 시청 완료함.
+현재 인프런에서 '화면에 데이터 출력하기' 강의까지 시청 완료함.
 
 
