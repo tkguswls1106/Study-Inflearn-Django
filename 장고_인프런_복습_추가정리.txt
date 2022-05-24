@@ -57,7 +57,7 @@ STATICFILES_DIRS = [
 
 <form action="{% url 'result' %}" method="get">   <!-- action은 method인 get으로 반환받은 값을 어느 path로 전달하면 될지 적어주는 것이다. -->
     <input type="number" name="number"/>        <!-- number 타입을 입력받게 되어있다. -->
-    					     <!-- 과정을 설명하자면, 숫자를 입력해주면, urls.py 파일의 path('result/')부분을 찾아가고, 그 안에 적힌 views.result 때문에,
+    					     <!-- 과정을 설명하자면, 숫자를 입력해주면, urls.py 파일의 path('result/')부분을 찾아가고(아마 name='result' 라고 된 path 부분일지도?), 그 안에 적힌 views.result 때문에,
     					      views.py 파일의 def result 메소드의 request 매개변수 값으로 해당 입력한 숫자의 값이 전달되어 해당 메소드를 실행하게 되는것이다. -->
     <button type="submit">결과보기</button>
 </form>
