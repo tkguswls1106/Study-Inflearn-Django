@@ -14,11 +14,11 @@ def list(request):
 
 
 def create(request):
-    form = PostForm()
+    form = PostForm()  # 그저 forms.py 파일에 적어둔 겉의 폼 양식만 가져옴.
     return render(request, 'second/create.html', {'form':form})
 
 def confirm(request):
-    form = PostForm(request.POST)
+    form = PostForm(request.POST)  # forms.py 파일에 적어둔 폼 양식에서 제출되어 request된 입력값을 models.py로 보냈고, 그걸 여기로 가져옴.
     if form.is_valid():  # 유효성 검사를 해준다. (예를들어 설정하였던 최대 문자열 길이를 넘기지는 않았는지 등등)
         return render(request, 'second/confirm.html', {'form': form})
     return HttpResponseRedirect('/second/create/')  # 위의 코드에서 유효성 검사에 실패했다면, 리다이렉트로 다른 사이트 주소로 접속하게 해준다.
