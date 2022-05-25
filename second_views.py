@@ -14,8 +14,17 @@ def list(request):
 
 
 def create(request):
-    form = PostForm()  # 그저 forms.py 파일에 적어둔 겉의 폼 양식만 가져옴.
+    if request.method == 'POST':  # form의 method가 GET인지 POST인지 검사하는 역할이다.
+        form = PostForm(request.POST)  # method가 POST가 맞다면, 해당 입력받아온 데이터인 입력request값을 사용할수 있게한다.
+        if form.is_valid():
+            print(form)  # 여기서 레코드(특정 데이터)를 생성하는 코드가 필요하다. / 나중에 값 입력하고 장고 터미널을 보면 제목의 value="입력값"이 뜬다.
+        return HttpResponseRedirect('/second/list/')  # 위의 코드에서 return값이 없기때문에, 유효성검사에 성공하든 실패하던간에 이 코드는 반드시 실행된다.
+    form = PostForm()  # 그저 forms.py 파일에 적어둔 겉의 폼 양식만 가져옴. / 'method가 GET이라면'의 조건부분이다.
     return render(request, 'second/create.html', {'form':form})
+# 그러면 과정을 설명해보자면,
+# 먼저, views.py 파일의 create메소드가 단순 접속이라서 GET방식으로 실행되고, 그러면 create.html에서 겉폼양식이 뜨게되고, 거기서 입력값을 입력하고 제출하면,
+# 입력한 입력request값을 들고왔기때문에 이는 POST방식으로 바뀌고, action="{% url 'create' %}" 때문에 urls.py 파일로 갔다가 views.py 파일로 와서 이번엔 create메소드를 POST방식으로 실행한다.
+# 그러면, 유효성 검사를 하게되고, 유효성 검사에 성공하면 print(form)하고 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게되고, 유효성 검사에 실패하면 print(form) 실행없이 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게된다.
 
 def confirm(request):
     form = PostForm(request.POST)  # forms.py 파일에 적어둔 폼 양식에서 제출되어 request된 입력값을 models.py로 보냈고, 그걸 여기로 가져옴.
