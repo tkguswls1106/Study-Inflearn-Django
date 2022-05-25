@@ -5,5 +5,5 @@ from . import views
 urlpatterns = [
     path('list/', views.list, name='list'),
     path('create/', views.create, name="create"),
-    path('cnfirm/', views.confirm, name="confirm"),
+    path('confirm/', views.confirm, name="confirm"),
 ]
