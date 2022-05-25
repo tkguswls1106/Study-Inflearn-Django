@@ -223,6 +223,9 @@ views.py 파일의 def create(request): 메소드 실행
 
 
 => 지금까지 말한 이 모든 과정들은 인프런에서 'Model Form 사용하기' 강의까지의 코드 내용이므로, 그 이후 강의를 수강함으로써 코드가 변경될 수 있다는 점을 유의하자.
+위의 def create(request): 메소드는 method가 GET방식일때의 메소드이고 (그저 초기 접속했을때의 용도),
+위의 def confirm(request): 메소드는 method가 POST방식일때의 메소드이다. (접속해서 입력을 받아왔을때의 용도)
+하지만 이 두가지 메소드를 모두 합친 메소드를 만들 수 있는데, 그건 밑에서 나중에 설명하겠다.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -240,6 +243,23 @@ apps.py 파일의 (verbose_name)
 주로 이걸 사용할때 사용한다고 한다.
 그래서 텍스트 앞에 'title': _('제목') 이렇게 적어준 것이다.
 
+views.py 파일의 create메소드를 연결할때,
+method를 get으로 이 페이지에 접속했을때에는 사용자가 입력할 수 있는 폼을 띄워주고,
+method를 post로 데이터가 전달되었을때는 데이터를 입력받도록 구현한다는 얘기이다.
+이 두가지를 모두 한 메소드에 담아 메소드를 코드 작성할 수 있는데, 예를들자면
+def create(request):
+    if request.method == 'POST':  # form의 method가 GET인지 POST인지 검사하는 역할이다.
+        form = PostForm(request.POST)  # method가 POST가 맞다면, 해당 입력받아온 데이터인 입력request값을 사용할수 있게한다.
+        if form.is_valid():
+            new_item = form.save()  # 이로써 입력값이 모델 스키마에 연결이 되면서 자동으로 데이터베이스에? 저장이 된다.
+        return HttpResponseRedirect('/second/list/')  # 위의 코드에서 return값이 없기때문에, 유효성검사에 성공하든 실패하던간에 이 코드는 반드시 실행된다.
+    form = PostForm()  # 그저 forms.py 파일에 적어둔 겉의 폼 양식만 가져옴. / 'method가 GET이라면'의 조건부분이다.
+    return render(request, 'second/create.html', {'form':form})
+# 그러면 과정을 설명해보자면,
+# 먼저, views.py 파일의 create메소드가 단순 접속이라서 GET방식으로 실행되고, 그러면 create.html에서 겉폼양식이 뜨게되고, 거기서 입력값을 입력하고 제출하면,
+# 입력한 입력request값을 들고왔기때문에 이는 POST방식으로 바뀌고, action="{% url 'create' %}" 때문에 urls.py 파일로 갔다가 views.py 파일로 와서 이번엔 create메소드를 POST방식으로 실행한다.
+# 그러면, 유효성 검사를 하게되고, 유효성 검사에 성공하면 모델스키마에 연결되어 new_item = form.save()로 모델폼데이터를 저장하고 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게되고, 유효성 검사에 실패하면 new_item = form.save() 실행없이 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게된다.
+# 참고로 결국 마지막에 list.html가 실행되면, 입력했던 값도 원래의 모델폼 데이터에 추가되어 list.html 안에서 출력되게 된다.
 
 
 ```
