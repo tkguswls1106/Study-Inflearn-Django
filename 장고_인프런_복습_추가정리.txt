@@ -10,6 +10,7 @@
 그리고 각 웹앱마다 프로젝트의 url.py로 해당 웹앱의 url.py를 서로 path include 연결시켜주어야함.
 ->
 각 웹앱에 templates 라는 디렉토리 생성하기. 그 안에 html파일(예를들어 index.html 파일) 생성하면됨.
+그 html 파일안의 내용중에서 <html lang="ko">로 바꿔주기
 ->
 해당 웹앱의 views.py 파일에 from django.template import loader 적어주기.
 ->
@@ -39,6 +40,7 @@ STATICFILES_DIRS = [
 만약 모델 클래스를 작성할것이라면, 각 웹앱의 models.py 파일에다가 적으면되고,
 굳이 폼을 따로 작성해주고싶다면, 각 웹앱에 forms.py 라는 파일을 생성하여 거기다가 폼 클래스를 적으면 된다.
 (참고로 모델 클래스와 폼 클래스의 코드 작성 방식이 얼추 비슷하다.)
+나중에는 굳이 forms.py 파일에 models.py 파일의 변수를 따라 적지 않고도, forms.py 파일 내에서 models.py 파일의 변수를 끌고와서 적는 모델폼클래스 사용으로 쉽게 연결을 할 수 있다.
 
 <라우팅 과정>
 사용자 접속 -> 프로젝트 폴더의 urls.py의 path에 적힌 include안의 매개변수에 따라 어떤 웹앱으로 접속할건지 결정(그래서 각 웹앱마다 프로젝트의 url.py로 path include 연결시켜주어야함)
@@ -51,12 +53,16 @@ STATICFILES_DIRS = [
 => 결론:
 '웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
 '웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 딕셔너리 변수의 키값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
+(하지만 나중에 from django.shortcuts import render 덕분에 코드 단축으로 render 안의 매개변수가 바뀌고, loader은 따로 잘 쓰지 않게 된다.)
 
 <템플레이팅 중괄호 문법 (렌더링하며 파이썬 코드를 html파일에서 사용할때)>
 => 장고 템플레이팅 중괄호 정리:
 단, 장고 템플릿으로 html 파일에서 렌더링하는 과정에서, a태그의 url로 name값으로 변수를 넣어주거나, if 조건문이나 for while 반복문처럼 파이썬 문법의 코드를 사용할때, {% %} 이런식으로 중괄호와 %로 감싸주는 형식으로 사용한다.
 그리고 마지막에 {% endfor %} 이나 {% endif %} 같은 end를 적어주어야한다.
 그리고 렌더링한 변수를 그저 출력만 하고싶을때만 {{ }} 이렇게 중괄호를 두번을 써주는 것이다.
+
+<forms.py와 models.py와 view.py와 urls.py와 html파일의 입력request값 이동 및 실행 과정 관련 내용>
+MD_django_inflearn_study 파일에 따로 자세히 적어두었음.
 
 <기타 등등 정리>
 예를들어 사이트 페이지를 여러개 만들어 띄우고 싶다면, 해당 웹앱의 views.py 파일에 def 메소드를 그만큼 메소드 종류를 추가하면된다.
@@ -69,6 +75,6 @@ STATICFILES_DIRS = [
 </form>
 
 ------------------------------------------
-현재 인프런에서 '폼으로 데이터 전송하기' 강의까지 시청 완료함.
+현재 인프런에서 'Model Form 사용하기' 강의까지 시청 완료함.
 
 
