@@ -70,6 +70,7 @@ render는 django.shortcuts 패키지에 있는 함수로서 다음과 같은 파
 => loader과 render 결론:
 '웹앱'의 'views.py 파일'의 '메소드'의 'loader'로, 'templates 디렉토리'의 '해당 html 파일'을 불러오고
 '웹앱'의 'views.py 파일'의 '메소드'의 'render'로, 해당 메소드에서 선언한 context 변수의 값을 'templates 디렉토리'의 '해당 html 파일'로 전달하고, 그리고 '해당 html 파일'을 실행한다.
+(하지만 나중에 from django.shortcuts import render 덕분에 코드 단축으로 render 안의 매개변수가 바뀌고, loader은 따로 잘 쓰지 않게 된다.)
 
 {% url 'result' %} 이런것처럼 메소드를 호출해서 출력할 수 있게하는것을 템플레이팅 이라고 한다.
 
@@ -164,7 +165,78 @@ Validation 체크(입력된 정보들의 유효성 검사)를 쉽게 해준다.
 csrf_token 은 각각에 서로 다른 토큰을 부여하고, 토큰이 다시 서버로 제출되었을때, 유효한 요청인지 검증하기 위해 사용한다.
 이는 {% csrf_token %} 이며, 아마 장고의 html파일에서 폼을 사용할때 사용되는것 같다.
 
-HttpResponseRedirect('/second/create/') 로, 조건에 맞는 상황이 부여되었을때(예를들어 유효성 검사),
+return HttpResponseRedirect('/second/create/') 로, 조건에 맞는 상황이 부여되었을때(예를들어 유효성 검사),
 원래 접속하려던 사이트 주소 말고 리다이렉트 하여 /second/create/ 사이트 주소로 돌려보내 접속하게 해준다.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+{forms.py와 models.py와 view.py와 urls.py와 html파일의 입력request값 이동 및 실행 과정 관련 내용} => 너무 길고 어려울수 있어 따로 ---점선으로 구간을 나누어 작성하였음.
+
+혹시 몰라서 용어정리
+Field = 상태, 속성, 변수
+동작 = Method, 행위
+
+아마 forms.py 파일에서 적은 코드들로 실행된 폼 인터페이스에 사용자가 입력값을 적으면, models.py 파일에 전송되어 데이터베이스로 저장이 되는것 같다.
+그래서 models.py 파일의 모델 클래스(예로 Post 클래스)에 변수(예로 title, content)를 추가로 적어줄때마다, forms.py 파일에도 폼클래스(예로 PostForm 클래스)에 추가로 변수(예로 title, content)를 적어주는것이 번거롭게되니까,
+아예 forms.py 파일에 from django.forms import ModelForm 를 적고, from second.models import Post 처럼, 해당 models.py 파일을 from 시키고 모델클래스인 Post를 import 해줌으로써, forms.py 파일과 models.py 파일의 클래스의 변수를 연결시켜준다.
+그러면 이제 forms.py 파일에서 폼클래스를 작성할때, class PostForm(forms.Form): 를 쓰지않고, class PostForm(ModelForm): 로 모델폼을 상속받아 사용이 가능해진다.
+단, 이 밑에 적을 부분은 폼클래스를 사용할때, class PostForm(ModelForm): 이 안에 반드시 작성해야하는 코드 부분이므로 규칙이라 그냥 외워두면 된다.
+class PostForm(ModelForm):
+    class Meta:
+        model = Post  	      # 이건 models.py 파일에 있는 Post 클래스를 의미한다.
+        fields = ['title', 'content']    # 그중에서 입력받고 싶은 필드(변수)는 'title', 'content'이다. 라는 뜻이다.
+			      # 이로써 models.py 파일의 변수들을 fields 라는 배열?에 넣어 꺼내서 쓰게될 수 있게 되었다.
+# 여기서 사이트 접속시 보여지는 이름(라벨)을 설정하려면, labels = {'title': _('제목'), } 요런식으로 정해주면 된다.
+
+<forms.py와 models.py와 view.py와 urls.py와 html파일의 입력request값 이동 및 실행 과정>
+forms.py 파일에 적어둔 폼 양식에서 제출되어 request된 입력값을 models.py로 보냈고,
+그걸 models.py에서 데이터베이스에 저장하고,
+그걸 view.py 파일의 특정 메소드로 가져와서 코드대로 html 파일로 다시 보내서 html 파일이 실행되면,
+접속 사이트에 html 코드의 디버깅 결과물이 뜨는 것이다.
+
+<위의 과정보다 더 자세한, 과정 서술 (주의사항은 from이랑 import 꼼꼼히 잘해주기)>
+models.py 파일부터 먼저 코드 작성해주고
+-> models.py 파일에 맞춰서 모델폼 클래스 연결해서 forms.py 파일 코드 작성해주고
+-> views.py 파일에 '겉의 폼 양식만 가져올 용도의 메소드를 하나 작성'해주고(예를들어 def create(request):), 그 메소드 안에 변수를 하나 만들어서, 그 변수에 forms.py 파일의 클래스로 겉 폼양식 인터페이스를 가져와서 작성할 수 있게 해주는 코드를 작성한다(예를들어 form = PostForm()). 그리고 그 메소드 안에서 특정 html 파일로 해당 '겉 폼양식 인터페이스 변수'를 렌더링으로 보내주어, 렌더링한 겉 폼 양식을 해당 html 파일에서 실행하게 된다.
+-> 하여튼 윗줄을 더 요약하자면 이렇게 views.py 파일에서 겉폼양식만 가져오는 def 메소드 생성해서, 메소드 안의 변수에 겉폼양식 대입해주기. 그리고 그 '겉폼양식 변수'를 특정 html로 렌더링하여 보내주면 그 html 파일 실행된다는 뜻임.
+-> 그렇기에 해당 겉 폼 양식을 렌더링해 받아갈 html 코드를 작성해주어야하는데, 해당 html 파일에는 '{{ 렌더링한 겉 폼 양식의 딕셔너리의 '키' 이름 }}'과 '제출 버튼'과 '<form action="{% url 'confirm' %}" method="post"> 처럼 겉 폼양식에 무언가를 적어 제출했을때 해당 입력request값을 보내줄 또다른 url path의 name이름을 action에 지정'해주는 이 모든 요소를 갖춘 html 파일을 작성해주어야한다. (예를들어 create.html)
+-> 하여튼 결국 위에서 말한 html 파일을 코드 작성하여 생성해주었고 그게 실행되었다면, 해당 html 파일(예를들어 create.html)에서 겉폼양식 출력해주고 겉폼양식에서 입력값을 입력하면, 거기서 제출버튼으로 입력된 입력request값은
+-> 해당 html파일에 적혀있는 action="{% url 'url path name 작성한거' %}" 이걸로 urls.py의 특정 path를 보게되고, 거기 path에 적힌 특정 views.py 파일의 특정 메소드로 연결되어 그 메소드에 입력했었던 입력request값이 전달됨. 아마도 이 과정속에서 forms.py에 연결된 models.py의 관련 클래스의 변수에 저장되고, 이는 결국 데이터베이스에 저장될 것이라고 생각함.
+-> 앞서 먼저 만들어 실행된 views.py 파일의 메소드는 겉폼양식을 가져오기만 하는거라,  '겉폼양식 변수'인 form = PostForm() 처럼 request 값은 '겉폼양식 변수'에 넣을 필요가 없었지만, 이번에 새로 연결된 views.py 파일의 메소드는 처음에 겉폼양식 html 파일에서 입력한 request 값을 이용하여 해당 입력값을 직접 이용할 새로운 html 사이트(만들어주자. 예를들어 confirm.html)에 값을 렌더링 해주어야하기때문에, 해당 메소드에는 form = PostForm(request.POST) 처럼 request 값을 가져오는 폼양식을 가져가는 변수를 만들어서 대입해주어야한다. 그리고 그 변수를 아까 말했던 새로운 html 파일에 렌더링 해준다. 그러면 해당 html 파일이 실행되는데, 그 html 파일에는 렌더링한 request변수의 value값이 직접 출력되어, 결국은 request값을 직접 화면에 출력할 수 있게 된다. 예를들어 {{ form.title.value }} 처럼 말이다.
+
+<위의 과정을 실제 파일 이름으로 이동과정 설명 초간단 요약>
+models.py 파일에 맞춰서 모델폼 클래스 연결해서 forms.py 파일 코드 작성.
+-> views.py 파일의 def create(request): 메소드에서 겉폼만 second/create.html 에 렌더링해줌.
+-> create.html 실행하여 겉폼양식에 입력request값 입력하여 제출함. 이제 이 입력값들고 이동함.
+-> action="{% url 'confirm' %}" 이므로, url.py 파일의 path에서 name='confirm' 인거 찾음
+-> 그건 views.confirm 이므로, views.py 파일의 def confirm(request): 메소드 실행.
+-> 입력했었던 입력request값을 second/confirm.html 에 렌더링하여 confirm.html 실행.
+-> {{ form.title.value }} 처럼 입력request값을 직접 이용하여 사이트에 출력.
+
+<이미 파일은 모두 작성되어있다고 가정하고, 위의 과정을 실제 파일 이름만으로 더더초간단 요약>
+views.py 파일의 def create(request): 메소드 실행
+-> create.html 파일 실행
+-> 겉폼에 입력값 입력
+-> 입력request값 들고 action에 적힌 url.py로 이동
+-> url.py의 path의 name='confirm'인것은 views.confirm이므로, views.py의 def confirm(request): 메소드 실행
+-> confirm.html 실행
+-> 결국 입력했었던 입력request값이 confirm.html 에서 직접 사용되어 사이트에 출력됨.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+forms.py 파일에 적힌 from django.utils.translation import gettext_lazy as _ 가 무엇인지 이 사이트에 자세히 나와있다.
+=> https://def-andy.tistory.com/11
+요약 설명해보자면, 
+- 장고가 실행되고 기본 언어가 영어인 상태
+- 영어 버전의 필드를 사용하게 됨
+- 사용자가 사이트의 기본언어를 한국어로 변경
+- 라벨은 여전히 영어인 상태(필드는 한 번 만 호출되기 때문에)
+이러한 경우때문에 사이트가 변역되며 실제로 함수가 문자열로 변역되는동안 시간을 지연시키도록 lazy로 써주는 것이다. 아마도 lazy 뒤에는 원하는거 적으면 되는듯하다. gettext_lazy as _ 여기서는 _를 사용했다.
+models.py 파일의 (fields, verbose_name, help_text, mthods short_description)
+forms.py 파일의 (labels, help_text, empty_label)
+apps.py 파일의 (verbose_name)
+주로 이걸 사용할때 사용한다고 한다.
+그래서 텍스트 앞에 'title': _('제목') 이렇게 적어준 것이다.
+
+
 
 ```
