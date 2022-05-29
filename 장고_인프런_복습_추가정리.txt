@@ -7,7 +7,7 @@
 
 <필요한 과정 (대부분의 from import나 그런건 생략했음.)>
 각 웹앱에 urls.py 파일 만들기.
-그리고 각 웹앱마다 프로젝트의 url.py로 해당 웹앱의 url.py를 서로 path include 연결시켜주어야함.
+그리고 각 웹앱마다 프로젝트의 urls.py로 해당 웹앱의 urls.py를 서로 path include 연결시켜주어야함.
 ->
 각 웹앱에 templates 라는 디렉토리 생성하기. 그 안에 html파일(예를들어 index.html 파일) 생성하면됨.
 그 html 파일안의 내용중에서 <html lang="ko">로 바꿔주기
@@ -22,7 +22,7 @@ return HttpResponse(template.render(context, request))
 ->
 메소드에 loader와 render 과정까지 모두 끝났다면, 해당 메소드가 들어있는 views.py 파일이 들어있는 웹앱의 이름을
 프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자. 예를들어 'firstapp', 이런식으로 말이다.
-그래야지 이제 장고에서 템플릿 디렉토리를 인식하여 사용할 수 있게 된다.
+그래야지 이제 장고에서 템플릿 디렉토리를 인식하여 사용할 수 있게 된다. (기왕이면 이건 첫번째과정의 마지막에 해주는게 좋을듯하다.)
 그리고 이뿐만아니라, 예를들어 'secondapp'이라는 웹앱에서 models.py 파일에다가 뭘 적는다면, 그 'secondapp'도 프로젝트의 settings.py 파일 안의 INSTALLED_APPS 부분의 [ ]  안에 적어주자.
 ->
 각 웹앱에 static 이라는 디렉토리 생성하기.
@@ -75,6 +75,4 @@ MD_django_inflearn_study 파일에 따로 자세히 적어두었음.
 </form>
 
 ------------------------------------------
-현재 인프런에서 'Model Form으로 데이터 저장하기' 강의까지 시청 완료함.
-
-
+현재 인프런에서 '데이터 수정/삭제하기' 강의까지 시청 완료함.
