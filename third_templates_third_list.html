@@ -1,10 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'third/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    {% for item in restaurants %}
+    <div class = "row restaurant-item" style="margin:20px auto;">
+        <div class="col-sm-12">
+            <div class="card border-secondary">
+                <div class = "card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ item.address }}</h6>
+                    <p class="card-text">음식점 설명</p>
+                    <a href="#" class="card-link">자세히 보기</a>
+                    <a href="#" class="card-link">수정하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
-</body>
-</html>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <div class="pagination">
+                <span class="step-links text-center" style="width:100%;">
+                    {% if restaurants.has_previous %}  <!-- has_previous()는 이전 페이지의 유무를 boolean 으로 반환 -->
+                        <a href="?page=1">&laquo;</a>  <!-- &laquo;는 << 이다. -->
+                        <a href="?page={{ restaurants.previous_page_number }}">{{ restaurants.previous_page_number }}</a>  <!-- previous_page_number는 이전 페이지 번호 반환이다. -->
+                    {% endif %}
+
+                    <span class="current">
+                        {{ restaurants.number }}  <!-- 현재페이지는 number로 표시하면된다. -->
+                    </span>
+
+                    {% if restaurants.has_next %}  <!-- has_next()는 다음 페이지의 유무를 boolean 으로 반환 -->
+                        <a href="?page={{ restaurants.next_page_number }}">{{ restaurants.next_page_number }}</a>  <!-- next_page_number는 아마도 다음 페이지 번호 반환이다. -->
+                        ...
+                        <a href="?page={{ restaurants.paginator.num_pages }}">&raquo;</a>  <!-- paginator.num_pages 는 페이지의 총개수를 의미한다. = 페이지 마지막 번호 -->
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
