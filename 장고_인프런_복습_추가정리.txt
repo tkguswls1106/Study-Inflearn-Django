@@ -31,7 +31,8 @@ return HttpResponse(template.render(context, request))
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
 ]
-적어주기
+적어주기.
+이후 나중에 html파일에서 static 파일을 사용할때에는 위에 {% load static %} 를 적어주면 된다.
 ->
 만약 웹앱이 여러개가 되면, 나중에 static import 한것때문에 웹앱끼리 스태틱 파일 불러올때 충돌이 일어날 수 있으니,
 각 웹앱의 static 디렉토리 안에 특정이름을 지은 디렉토리를 하나 더 만들어주고, 원래 static 디렉토리 안에 들어있던 모든 정적 콘텐츠 파일들을 모두 해당 디렉토리로 옮겨준다.
@@ -75,4 +76,4 @@ MD_django_inflearn_study 파일에 따로 자세히 적어두었음.
 </form>
 
 ------------------------------------------
-현재 인프런에서 '데이터 수정/삭제하기' 강의까지 시청 완료함.
+현재 인프런에서 'R: 페이지 구현하기' 강의까지 시청 완료함.
