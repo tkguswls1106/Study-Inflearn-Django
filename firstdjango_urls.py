@@ -1,5 +1,4 @@
 """firstdjango URL Configuration
-
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
 Examples:
@@ -22,5 +21,6 @@ urlpatterns = [
     path('first/', include('first.urls')),  # first 패키지 안의 urls.py 파일을 참조하겠다는 뜻이다.
                                       # 그리고 여기에 path 입력한다음에 마지막에 , 를 입력하는걸 잊지말자.
     path('second/', include('second.urls')),
+    path('third/', include('third.urls')),
     path('admin/', admin.site.urls),
 ]
