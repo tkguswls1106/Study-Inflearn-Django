@@ -123,7 +123,7 @@ block 사이에 주석을 문단으로 길게 넣으면 이상하게 에러가 �
 python manage.py makemigrations  // 정의한 models.py에 있는 모델링 코드(모델 class)를 데이터베이스(firstdjango_settiings.py에서 정의한 DATABASE 선언에 들어가있는 ENGINE)에 맞는 형태로 코드를 정의해주는 역할을 한다.
 			           // 그러면 migrations 폴더 안에 0001_initial.py 라는 파일이 생성된다. 이 안에는 models.py의 class(예를들어 POST라는 모델 스키마)와 관련되어 코드가 자동으로 생성된다. 이렇게 자동으로 만들어주는 역할을 한다.
 			           // 만약 models.py 파일을 계속 수정하게되면 그때그때마다 python manage.py makemigrations를 호출하여 변화되는 코드들을 계속 0001_initial.py 파일에 업데이트 시켜줄수 있다. 데이터베이스 업데이트.
-python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되면 db.sqlite3 이라는 파일이 생성된다.(근데 나는 원래 생성되어있었음.)
+python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되면 db.sqlite3 이라는 파일이 생성된다(근데 나는 원래 생성되어있었음.). 이로써 여기까지 하면 DB생성 완료이다.
 
 <client가 server에 http 요청을 했을때의 그 흐름>
 1. 예를들어 클라이언트가 서버에 abc.com 사이트에 대한 데이터를 달라는 요청을 함.
@@ -137,7 +137,7 @@ python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되�
 <venv 켜둔 상태>
 python manage.py shell  // 장고 코드를 파일로 따로 작성하지 않아도 쉘(shell)을 이용하여 InteractiveConsole에서 장고 프레임워크를 활용한 여러가지 코드를 바로 대화형으로 실행해볼수 있다.
 <shell 켜둔 상태>
-from second.models import Post
+from second.models import Post  // 이 Post는 models.py에 적힌 클래스 이름이다.
 post = Post.objects.create(title='this is title', content='this is content')
 post  // 이거 치면 이제 <Post: Post object (1)> 이라고 뜨는데 여기서 (1)이 뭔지 이걸 설명해보자면,
         // 예를들어 학교교실에 김철수라는 학생이 10명이 있는데, 선생님이 김철수 학생을 호명하면 10명중 누구를 부르는지 명확하질않으니까 혼동되지않도록 각각 철수에게 출석번호(아이디 번호)를 붙여둔것이다.
@@ -260,6 +260,102 @@ def create(request):
 # 입력한 입력request값을 들고왔기때문에 이는 POST방식으로 바뀌고, action="{% url 'create' %}" 때문에 urls.py 파일로 갔다가 views.py 파일로 와서 이번엔 create메소드를 POST방식으로 실행한다.
 # 그러면, 유효성 검사를 하게되고, 유효성 검사에 성공하면 모델스키마에 연결되어 new_item = form.save()로 모델폼데이터를 저장하고 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게되고, 유효성 검사에 실패하면 new_item = form.save() 실행없이 바로 '/second/list/'로 리다이렉트로 list.html 파일을 실행하게된다.
 # 참고로 결국 마지막에 list.html가 실행되면, 입력했던 값도 원래의 모델폼 데이터에 추가되어 list.html 안에서 출력되게 된다.
+
+ORM(Object-relational mapping)은 서로 다른 시스템 간의 데이터 형식의 호환을 위해 데이터를 변환하고 맵핑(연결)해주는 방식 또는 기술을 의미한다.
+웹기준으로 예를들어 간단하게 설명하자면, 우리는 현재 sqlite3 데이터베이스(스키마)와 웹앱이 연동되어있는데,
+이걸 나중에 배포할때 mysql로 데이터베이스를 변경할때에, ORM을 사용하여 코드는 거의 변경없이 알아서 맵핑해줌으로써 편리함을 제공하는 역할을 한다.
+
+<third 웹앱 생성하고 DB를 shell로 다루는 과정> (설명줄 앞에 @@ 적혀있으면 그 줄만 venv 활성화시키고 적는 부분임.)
+// @@ venv\Scripts\activate
+@@ python manage.py startapp third
+third_urls.py 생성.
+firstdjango_urls.py에 third_urls.py를 path include로 연결.
+firstdjango_settings.py에 INSTALLED_APPS 부분의 안에 [ 'third', ] 적어줌.
+third_views.py에 def list(request): 메소드 작성 하고, 그 메소드에 return render(request, 'third/list.html', context) 적어줌으로써, 렌더링하기.
+third 웹앱에 templates 디렉토리 생성하고, templates 디렉토리 안에 third 디렉토리 생성하고, third_templates_third_list.html 생성.
+third_models.py에 모델클래스 class Restaurant(models.Model): 생성하고 그안에 name과 address 필드(변수) 생성. 그리고 created_at(생성 시간)과 updated_at(수정 업데이트 시간) 적어주기.
+@@ python manage.py makemigrations
+@@ python manage.py migrate
+@@ python manage.py shell  // shell 켜줌.
+@@ from third.models import Restaurant  // shell을 껐다가 다시 킬때마다 해줘야하는 코드임.
+@@ Restaurant(name="Deli Shop", address="Gangnam").save()
+@@ Restaurant(name="Korean Food", address="Gangbuk").save()
+@@ Restaurant(name="Sushi", address="Gangbuk").save()
+// @@ Restaurant.objects.all()  // 모든 object들 목록을 출력해줌. 아마 all도 ORM메소드중 하나일것이다.
+// @@ Restaurant.objects.all().values()  // 모든 object들의 모든 정보값을 출력해줌.
+// @@ Restaurant.objects.get(pk=1).name  // get은 ORM메소드중 하나이며 값을 하나 가져온다는 의미의 메소드이다. primary_key(pk)의 id가 1인 object의 name 필드(변수)의 값을 출력함. 'Deli Shop' 출력됨.
+// @@ Restaurant.objects.get(pk=1)  //  <Restaurant: Restaurant object (1)> 출력됨.
+// @@ Restaurant.objects.get(pk=2).address  // 'Gangbuk' 출력됨.
+// @@ Restaurant.objects.filter(name='Deli Shop').values()  // filter로 특정 데이터를 검색할 수 있다. 참고로 filter는 ORM메소드이다. name='Deli Shop'인 object의 모든 정보값을 출력해줌.
+// @@ Restaurant.objects.filter(name='Deli Shop')  // 참고로 Restaurant.objects.filter(name__exact='Deli Shop')과 같은 말임. <QuerySet [<Restaurant: Restaurant object (1)>]> 출력됨.
+// @@ Restaurant.objects.exclude(name='Sushi').values()  // exclude로 특정 데이터만 제외하여 출력할 수 있다. 참고로 exclude는 ORM메소드이다. name='Sushi'인 object만 제외하고 나머지 object들의 모든 정보값을 출력해줌.
+// @@ Restaurant.objects.exclude(name='Sushi')  // <QuerySet [<Restaurant: Restaurant object (1)>, <Restaurant: Restaurant object (2)>]> 출력됨.
+/*
+shell에서 QuerySet을 리턴하여 출력하는 코드가 있다.
+예를들어 Restaurant.objects.filter(name='Deli Shop') 가 있다.
+Query는 질의란 뜻으로, 데이터베이스에 어떤 데이터를 받아오고 싶은지 조건 정의하는 것을 의미한다.
+그렇기에 QuerySet은 실제 데이터를 읽기 전까지 데이터베이스에서 실행되지 않기 때문에 chaining이 가능하다.
+위의 실제 데이터를 읽는 코드의 예로는, Restaurant.objects.exclude(name='Sushi')[0] 가 있다.  // name='Sushi'인 object(이건 pk=3이자 인덱스 2임)를 제외하고, object들중 나머지중에서 0인덱스의 object 출력이니까 <Restaurant: Restaurant object (1)> 출력됨. 참고로 <Restaurant: Restaurant object (1)>에서 1은 pk id값이니까, 인덱스랑 pk id값이랑 헷갈리지 말자.
+위의 실제 데이터를 읽는 코드의 또다른 예로는, Restaurant.objects.filter(name='Deli Shop').values() 처럼 values()로 값을 갖고오는 경우도 해당된다.
+위처럼 실제 데이터를 읽는 코드를 실행하면, QuerySet의 중간 결과물을 출력함과 동시에 결정이 되어서 데이터를 가져올 수 있게 된다.
+QuerySet이니까 filter나 exclude를 연속으로 중첩시켜서 Restaurant.objects.filter(name='Deli Shop').exclude(name='Sushi') 이렇게도 사용이 가능하다. 이런걸 chaining 이라고 한다.  // <QuerySet [<Restaurant: Restaurant object (1)>]> 출력됨.
+*/
+// @@ Restaurant.objects.all()[0:1]  // <QuerySet [<Restaurant: Restaurant object (1)>]> 출력됨.
+// @@ Restaurant.objects.all()[1:3]  // <QuerySet [<Restaurant: Restaurant object (2)>, <Restaurant: Restaurant object (3)>]> 출력됨.
+// @@ Restaurant.objects.order_by('created_at')  // order_by로 작은숫자부터 큰숫자로 순서대로 출력이 가능하며, 이 코드는 object들을 오래된 생성일(생성시간)부터 최근 순서로 정렬하여 출력해준다. <QuerySet [<Restaurant: Restaurant object (1)>, <Restaurant: Restaurant object (2)>, <Restaurant: Restaurant object (3)>]> 출력됨.
+// @@ Restaurant.objects.order_by('-created_at')  // 위의 코드에서 -를 붙이면, 위의 코드와는 반대로, 최근 생성일부터 오래된 생성일 순으로 정렬하여 출력해준다(최신순 출력인 것이다.). <QuerySet [<Restaurant: Restaurant object (3)>, <Restaurant: Restaurant object (2)>, <Restaurant: Restaurant object (1)>]> 출력됨.
+/*
+데이터가 많아지면, 10개 또는 20개씩 끊어서 볼 방법이 필요한데, 이것을 바로 페이징이라고 한다.
+그래서 [0:1] 처럼 리스트 인덱스 슬라이싱으로 출력해주기도 한다.
+order_by는 작은숫자부터 큰숫자 순으로 정렬하여 출력해주는데, created_at은 생성시간 기준이고 생성시간은 최근일수록 숫자가 커지니까 저렇게 오래된 생성시간의 object부터 출력되는 것이다.
+*/
+// @@ Restaurant.objects.filter(name__contains='Korean')  // object의 name에 Korean 이라는 문자열이 포함된 특정 object를 검색하여 출력함. 그러면 name="Korean Food"인 object인 <QuerySet [<Restaurant: Restaurant object (2)>]>가 출력된다.
+// @@ Restaurant.objects.filter(name__contains='Korean').values()
+// @@ Restaurant.objects.filter(created_at__gt='2018-01-01 00:00:00').values()  // 2018-01-01보다 숫자가 이상인 것들 출력
+// @@ Restaurant.objects.filter(name__startswith='Korea').values()  // Restaurant.objects.filter(name__startswith='Food').values() 는 안됨. 
+// @@ Restaurant.objects.filter(id__in=[1,3]).values()  // pk id값이 1인 것과 3인 것을 검색하여 출력해줌.
+// @@ Restaurant.objects.filter(id__range=(1,3)).values()  // pk id값이 1부터3인(1,2,3) 것을 검색하여 출력해줌.
+/*
+Column Lookup 방법으로, 복잡한 조건으로 특정한 정보를 검색하여 출력할수 있다.
+예를들어 Restaurant.objects.filter(name__contains=’Korea’).values() 이러한 코드인데,
+__exact : 특정 키워드랑 정확하게 일치하는 레코드 조회
+__contains : 특정 키워드가 포함된 레코드를 조회
+__gt, gte, lte, lt : 더 크거나, 더 크거나 같거나, 더 작거나 같거나, 더 작거나한 레코드를 조회
+__startswith, endswith : 특정 문자열로 시작하거나 종료되는 레코드를 조회
+__in : 여러 값을 한 번에 검색에 조건으로 걸 때 사용
+__range : 특정 값 사이의 레코드를 조회
+*/
+@@ item = Restaurant.objects.get(pk=1)  // pk=1인 object를 item이라는 변수를 만들어서 거기에 할당시킴.
+@@ item.name  // 그러면 'Deli Shop' 출력됨.
+@@ item.name = 'My Shop'  // item.name에 원래는 'Deli Shop'가 들어가있었지만, 'My Shop'으로 값을 수정함.
+@@ item.save()  // save를 호출해야 위의 수정값이 '실제로' 저장되어 밑의 코드에서 정상적인 출력이 가능해진다. 만약 save없이 item.name 또 치면 'My Shop'이라고 출력되겠지만, Restaurant.objects.get(pk=1).name으로 보면 'Deli Shop'으로 출력된다.
+// @@ Restaurant.objects.filter(id=1).values()  // <QuerySet [{'id': 1, 'name': 'My Shop', 'address': 'Gangnam', 'created_at': datetime.datetime(2022, 5, 29, 5, 22, 26, 841587, tzinfo=<UTC>), 'updated_at': datetime.datetime(2022, 5, 29, 7, 5, 7, 614645, tzinfo=<UTC>)}]> 출력됨. 참고로 filter가 아닌 get쓰면 쿼리셋이 아니라 그 id를 바로 찝어서 가지고와버리기때문에 에러남. (아마도 pk id=1인 item 데이터 변수를 말하는거같다.)
+// @@ Restaurant.objects.get(pk=1).name  // 'My Shop' 출력됨.
+// @@ item.id  // 1 출력됨.
+// @@ item  // <Restaurant: Restaurant object (1)> 출력됨.
+@@ new_one = Restaurant(name="one", address="addr").save()  // new_one이라는 변수에, 모델 클래스 Restaurant로 name과 address 필드에 값을 넣어 생성한 데이터를 할당함.
+// @@ new_one.id  // 출력이 아무것도 안뜸.
+// @@ new_one  // <Restaurant: Restaurant object (none)> 출력됨.
+/*
+처음에는 자동으로 item 변수에 값 들어감. 그리고 자동으로 item의 pk id값은 1로써, item.id = 1 이다. item 코드로 출력해보면 <Restaurant: Restaurant object (1)> 출력됨.
+item 변수에는 하나의 Restaurant 모델 클래스가 들어있고, Restaurant는 여러 object를 가지고 있으며, 각 object 하나에 name과 address 필드가 들어있고, 그 필드 안에는 값이 들어있음.
+즉, 'item > Restaurant > object > 필드(name, address)' 이다.
+참고로 <= 는 할당을 의미하는 용도로 적었음.
+Restaurant(name="Deli Shop", address="Gangnam").save()  // item <= Restaurant(name1, address1) // item[0] <= Restaurant(item[0].name, item[0].address) // pk id=1
+Restaurant(name="Korean Food", address="Gangbuk").save()  // item <= Restaurant(name2, address2) // item[1] <= Restaurant(item[1].name, item[1].address) // pk id=2
+Restaurant(name="Sushi", address="Gangbuk").save()  // item <= Restaurant(name3, address3) // item[2] <= Restaurant(item[2].name, item[2].address) // pk id=3
+여기까지는 save를 호출할때, 데이터를 수정하는 UPDATE 이고, 밑에서부터는 데이터를 추가하는 INSERT 이다.
+new_item = Restaurant(name="one", address="addr").save()  // new_item <= Restaurant(name1, address1) // new_item <= Restaurant("one", "addr") // pk id=none
+이처럼 처음에 new_item에 save했을때 new_item의 id값이 none인 이유는, 원래 초기부터 존재했던 item 변수는 이미 데이터베이스와 연락(통신)중이라 id값이 1로 정해져있어서 ⁯UPDATE된 것이지만,
+갑자기 INSERT된 새로운 데이터 변수인 new_item은 아직 데이터베이스와 연락(통신)하지 못한채로 새로 생성되었기에, 아직 데이터베이스가 id값을 부여해주지 않아서 id=none인 것이다.
+즉, save를 호출할 때 데이터를 추가하는 INSERT인지 데이터를 수정하는 UPDATE인지 구분하는 방법은, id값이 존재하냐 안하냐로, 존재하면 UPDATE이고 존재하지않으면 INSERT로 구분하여 수행하는 것이다.
+결국에는 new_item은 새로 추가되었기때문에, Restaurant.objects.all().values() 를 출력해보면(실제로 출력은 정상적이게 안되고, 그냥 이론적으로 적겠다), 
+<QuerySet [<item object (1)>, <item object (2)>, <item object (3)>, <new_item object (none)>]> 인 것인데, 이거의 다음과정으로
+<QuerySet [<Restaurant: Restaurant object (1)>, <Restaurant: Restaurant object (2)>, <Restaurant: Restaurant object (3)>, <Restaurant: Restaurant object (4)>]> 가 되어, 이거의 다음과정으로
+<QuerySet [{id=1인 'Deli Shop' 관련 정보들}, {id=2인 'Korean Food' 관련 정보들}, {id=3인 'Sushi' 관련 정보들}, {id=4인 'one' 관련 정보들}]> 이러한 과정으로 저장되고 출력된다.
+*/
+@@ item.delete()  // (1, {'third.Restaurant': 1}) 라고 출력된다. 이는 1개의 레코드가 영향을 받았다는 의미이다.
+// @@ Restaurant.objects.all().values()  // id가 1이었던 'Deli Shop' 관련 정보들이 삭제되어 그것을 제외하고, id=2인 'Korean Food' 관련 정보와 id=3인 'Sushi' 관련 정보와 id=4인 'one' 관련 정보가 출력됨.
 
 
 ```
