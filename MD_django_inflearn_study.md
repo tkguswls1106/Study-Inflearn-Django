@@ -337,7 +337,7 @@ __range : 특정 값 사이의 레코드를 조회
 // @@ new_one.id  // 출력이 아무것도 안뜸.
 // @@ new_one  // <Restaurant: Restaurant object (none)> 출력됨.
 /*
-처음에는 자동으로 item 변수에 값 들어감. 그리고 자동으로 item의 pk id값은 1로써, item.id = 1 이다. item 코드로 출력해보면 <Restaurant: Restaurant object (1)> 출력됨.
+처음에는 자동으로 item 변수(인스턴스 변수)에 값 들어감. 그리고 자동으로 item의 pk id값은 1로써, item.id = 1 이다. item 코드로 출력해보면 <Restaurant: Restaurant object (1)> 출력됨.
 item 변수에는 하나의 Restaurant 모델 클래스가 들어있고, Restaurant는 여러 object를 가지고 있으며, 각 object 하나에 name과 address 필드가 들어있고, 그 필드 안에는 값이 들어있음.
 즉, 'item > Restaurant > object > 필드(name, address)' 이다.
 참고로 <= 는 할당을 의미하는 용도로 적었음.
@@ -347,7 +347,7 @@ Restaurant(name="Sushi", address="Gangbuk").save()  // item <= Restaurant(name3,
 여기까지는 save를 호출할때, 데이터를 수정하는 UPDATE 이고, 밑에서부터는 데이터를 추가하는 INSERT 이다.
 new_item = Restaurant(name="one", address="addr").save()  // new_item <= Restaurant(name1, address1) // new_item <= Restaurant("one", "addr") // pk id=none
 이처럼 처음에 new_item에 save했을때 new_item의 id값이 none인 이유는, 원래 초기부터 존재했던 item 변수는 이미 데이터베이스와 연락(통신)중이라 id값이 1로 정해져있어서 ⁯UPDATE된 것이지만,
-갑자기 INSERT된 새로운 데이터 변수인 new_item은 아직 데이터베이스와 연락(통신)하지 못한채로 새로 생성되었기에, 아직 데이터베이스가 id값을 부여해주지 않아서 id=none인 것이다.
+갑자기 INSERT된 새로운 데이터 변수(인스턴스 변수)인 new_item은 아직 데이터베이스와 연락(통신)하지 못한채로 새로 생성되었기에, 아직 데이터베이스가 id값을 부여해주지 않아서 id=none인 것이다.
 즉, save를 호출할 때 데이터를 추가하는 INSERT인지 데이터를 수정하는 UPDATE인지 구분하는 방법은, id값이 존재하냐 안하냐로, 존재하면 UPDATE이고 존재하지않으면 INSERT로 구분하여 수행하는 것이다.
 결국에는 new_item은 새로 추가되었기때문에, Restaurant.objects.all().values() 를 출력해보면(실제로 출력은 정상적이게 안되고, 그냥 이론적으로 적겠다), 
 <QuerySet [<item object (1)>, <item object (2)>, <item object (3)>, <new_item object (none)>]> 인 것인데, 이거의 다음과정으로
@@ -356,6 +356,31 @@ new_item = Restaurant(name="one", address="addr").save()  // new_item <= Restaur
 */
 @@ item.delete()  // (1, {'third.Restaurant': 1}) 라고 출력된다. 이는 1개의 레코드가 영향을 받았다는 의미이다.
 // @@ Restaurant.objects.all().values()  // id가 1이었던 'Deli Shop' 관련 정보들이 삭제되어 그것을 제외하고, id=2인 'Korean Food' 관련 정보와 id=3인 'Sushi' 관련 정보와 id=4인 'one' 관련 정보가 출력됨.
+
+CRUD는 대부분의 컴퓨터 소프트웨어가 가지는 기본적인 데이터 처리 기능인 Create(생성), Read(읽기), Update(갱신), Delete(삭제)를 묶어서 일컫는 말이다.
+사용자 인터페이스가 갖추어야 할 기능(정보의 참조/검색/갱신)을 가리키는 용어로서도 사용된다.
+
+Read는 읽기니까, 사용자가 이 데이터를 화면에 볼 수 있는 기능들을 만들면 된다.
+예를들어 맛집리스트나 맛집상세보기 정도가 되겠다.
+
+css코드 등등의 여러 템플릿들을 부트스트랩 이라는 사이트에서 제공하고있다.
+
+데이터가 너무 많아지면, 한 페이지에 너무 많은 글이 보여져서 사용자가 사이트에서 리스트를 보기가 힘들어진다.
+그래서 웹사이트의 페이지를 구분하여 다음 페이지로 넘김으로서 다음 리스트로 넘어가는 것을 구현할 수 있는데,
+이처럼 페이지 구분을 주기 위해 필요한게 '페이지네이션'이라는 개념이다. 여러 아이템을 보여줄 때 페이지를 매겨주고 선택한 페이지에 따른 알맞은 목록을 보여주는 역할을 한다.
+def list(request):
+    restaurants = Restaurant.objects.all()  # restaurants라는 인스턴스 변수에 할당함.
+    paginator = Paginator(restaurants, 5)  # 한페이지당 5개씩 보여주겠다는 뜻이다. 참고로 Paginator는 import해서 사용해주어야한다.
+
+    page = request.GET.get('page')  # 현재 보고있는 페이지가 어떤 페이지를 조회를 원했는지 url의 parameter(파라미터)에서 받아옴.
+                                    # 예를들어 third/list?page=1 에서 1이 파라미터이다. 참고로 이건 패스 파라미터가 아니라 쿼리 파라미터이다.
+    items = paginator.get_page(page)  # 쿼리 파라미터에서 페이지값을 받아서 그 페이지에 맞는 item들만 필터링해서 보여주겠다는 의미이다.
+                                      # 즉, 쿼리 파라미터에서 받은 페이지값에 맞는 필드 정보들을 items 라는 변수에 넣었고, 그뿐만아니라 페이지 정보도 함께담겨간다. 그걸 렌더링 할 것이다.
+    context = {
+        'restaurants': items
+    }
+    return render(request, 'third/list.html', context)
+
 
 
 ```
