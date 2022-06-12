@@ -162,8 +162,24 @@ Validation 체크(입력된 정보들의 유효성 검사)를 쉽게 해준다.
 악의적인 데이터(악의적인 코드)를 필터링 한다. (sanitisation) 
 짧고 간결한 코드로 폼 인터페이스를 구현한다.
 
-csrf_token 은 각각에 서로 다른 토큰을 부여하고, 토큰이 다시 서버로 제출되었을때, 유효한 요청인지 검증하기 위해 사용한다.
+csrf_token 은 각각에 서로 다른 토큰을 부여하고, 토큰이 다시 서버로 제출되었을때, 잘못된 요청이 아니고 유효한 요청이 맞는지 검증하기 위해 사용한다.
+우리가 templates 폴더에 만들어둔 특정 html파일의 form을 통해서만 데이터가 들어오도록 해주는 역할도 한다.
 이는 {% csrf_token %} 이며, 아마 장고의 html파일에서 폼을 사용할때 사용되는것 같다.
+
+<form action="{% url 'restaurant-create' %}" method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}  <!-- views.py에서 렌더링받은 '겉 폼 양식 변수'로 겉 폼 양식을 출력하는 구문이다. -->
+                                     <!-- 특정 데이터 하나를 하나의 레코드라고 부르고, 테이블은 여러 레코드의 집합이다.
+                                     여기서 레코드는 forms.py 파일의 모델폼의 각 여러 속성 및 데이터이고,
+                                     이러한 데이터들의 집합인 테이블을 갖고와서, 겉폼 양식을 {{ form.as_table }} 로 불러온것이다.
+                                     {{ form.as_table }} 안에는 tr등등이 함축된 코드이므로, <table></table> 태그 안에 적어야 효과가 있다.
+                                     참고로 {{ form.as_table }}에서의 form은, 렌더링할때 직접 지은 이름이므로 고유 키워드명이 아니라는것에 명심하고 헷갈리지 말자. -->
+        </table>
+        <button type="submit">등록</button>
+</form>
+
+<form action="{% url 'create' %}" method="post"> 에서의 'create'는, urls.py 파일의 name='create' 라고 되어있는 부분을 뜻한다. path가 /create 이라는뜻이 아니므로, 헷갈리지말자. name 기준이다.
 
 return HttpResponseRedirect('/second/create/') 로, 조건에 맞는 상황이 부여되었을때(예를들어 유효성 검사),
 원래 접속하려던 사이트 주소 말고 리다이렉트 하여 /second/create/ 사이트 주소로 돌려보내 접속하게 해준다.
@@ -357,6 +373,8 @@ new_item = Restaurant(name="one", address="addr").save()  // new_item <= Restaur
 @@ item.delete()  // (1, {'third.Restaurant': 1}) 라고 출력된다. 이는 1개의 레코드가 영향을 받았다는 의미이다.
 // @@ Restaurant.objects.all().values()  // id가 1이었던 'Deli Shop' 관련 정보들이 삭제되어 그것을 제외하고, id=2인 'Korean Food' 관련 정보와 id=3인 'Sushi' 관련 정보와 id=4인 'one' 관련 정보가 출력됨.
 
+--------------------------- CRUD의 R (리스트 구현하기, 페이지 구현하기) ---------------------------
+
 CRUD는 대부분의 컴퓨터 소프트웨어가 가지는 기본적인 데이터 처리 기능인 Create(생성), Read(읽기), Update(갱신), Delete(삭제)를 묶어서 일컫는 말이다.
 사용자 인터페이스가 갖추어야 할 기능(정보의 참조/검색/갱신)을 가리키는 용어로서도 사용된다.
 
@@ -381,6 +399,49 @@ def list(request):
     }
     return render(request, 'third/list.html', context)
 
+------------------------------------------------------------------------------------------------------------
 
+---------------------------------- CRUD의 C (게시글 등록 구현하기) ----------------------------------
+
+< ★★★★★ third_views.py 파일의 create 메소드 코드 설명과, 관련된 라우팅 진행 과정 설명 (모델폼과 DB 관련 설명으로 매우 중요!! ★★★★★) >
+def create(request):
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST)  # 'POST' 요청으로 들어온 모든 데이터를, third_forms.py 파일의 모델폼인 RestaurantForm에 담아서 바로 데이터를 저장할 수 있다. 그리고 form이라는 변수에 저장한다.
+        if form.is_valid():
+            new_item = form.save()  # 이제 DB에 저장
+        return HttpResponseRedirect('/third/list/')  # 유효성 검사가 성공해서 DB에 저장이 되든, 실패를해서 저장이 안되던간에, /third/list/ 경로로 리다이렉트 시킴. third_urls.py 파일의 path('list/') 부분으로 넘어가면 됨.
+    form = RestaurantForm()  # 만약 request.method == 'GET' 이라면, 그저 third_forms.py 파일에 적어둔 겉의 폼 양식만 가져옴.
+    return render(request, 'third/create.html', {'form': form})  # form 변수의 값을 넣은 'form'이라는 이름으로 겉폼양식을 third/create.html 파일에 렌더링 시킴.
+# { 과정 설명 (각 과정에 설명과 해당코드를 적어둠. 설명 부분은 앞에 @라고 적어두겠음.) }
+# 1. @ third_views.py 파일의 create 메소드를 첫 실행하게 됨. 그러면 아직 POST 요청이 아닌, GET 요청임. (현재 GET 방식인 상태)
+# 2. @ third_forms.py 파일의 모델폼인 RestaurantForm의 겉폼양식을 가져와서, third/create.html 로 렌더링시킴. (현재 GET 방식인 상태)
+#      form = RestaurantForm()
+#      return render(request, 'third/create.html', {'form': form})
+# 3. @ third/create.html 실행. 그러면 렌더링해온 겉폼 양식이 띄워지는데, 거기다가 값을 입력하고 제출함. (현재 GET 방식인 상태)
+# 4. @ third/create.html 파일에 적힌 <form action="{% url 'restaurant-create' %}" method="post">로 인하여 방식이 POST로 변환되며 입력값이 third_urls.py 파일의 name='restaurant-create'인 부분에 적힌 third_views.py 파일의 create 메소드로 값을 보내줌. (현재 POST 방식인 상태)
+# 5. @ 그러면 third_views.py 파일의 if request.method == 'POST': 부분의 조건을 만족시키게 되고, 해당 if 조건 부분 내용 실행.
+#    if request.method == 'POST':
+# 6. @ POST 요청으로 들어온 모든 데이터를, third_forms.py 파일의 모델폼인 RestaurantForm의 fields 목록의 'name', 'address' 안에 입력값을 담고, 모델에 데이터를 임시 저장한다. 그리고 그렇게 저장된 모델폼 클래스인 RestaurantForm의 정보를 form이라는 변수를 선언하여 그 변수 안에 할당한다.
+#      form = RestaurantForm(request.POST)
+# 7. @ 그렇게 할당된 form 변수 안의 데이터에 대하여 유효성 검사(예를들어 글자수가 맞게 입력되었는지 등)를 하게됨.
+#      if form.is_valid():
+# 8. @ 유효성 검사에 성공하였다면, 모델폼에 임시저장하였던 fields 들의 데이터를, 할당한 form 변수를 통하여 실제로 완전히 DB에 저장시킴.
+#      new_item = form.save()
+# 9. @ 유효성 검사가 성공해서 DB에 저장이 되든, 실패를해서 저장이 안되던간에, /third/list/ 경로로 리다이렉트 시킴. 이는 third_urls.py 파일의 path('list/') 부분으로 넘어가면 됨. 그러면 결국은 views.list로 인하여 third_views.py 파일의 list 메소드 실행됨.
+#      return HttpResponseRedirect('/third/list/')
+# 10. @ 결국은 위의 과정9까지의 진행 결과로 저장된 DB를, list 메소드에서 사용하게 되는 것이다. 이처럼 라우팅을 통하여, 모델폼을 이용한 입력값을 DB에 저장하는 과정이 완료된 것이다.
+# @ 즉, models.py 파일에서는 텍스트의 유효 최대크기 같은거랑 created_at이랑 updated_at만 코드로 적어두고, forms.py 파일에서는  모델폼으로 그 겉폼틀의 코드를 작성하면 되고, views.py에서는 렌더링 코드를 작성하면 되고, html 파일에서는 <form action="{% url 'restaurant-create' %}" method="post">와 {% csrf_token %}와 <table>{{ form.as_table }}</table> 코드를 활용하여 코드를 완성하면 된다.# @ 즉, 밑의 4가지 파일과 urls.py 파일로 DB 저장 및 폼 라우팅이 이루어진다.
+# @ models.py 파일에서는 텍스트의 유효 최대크기 같은거랑 created_at이랑 updated_at만 코드로 적어두고,
+# @ forms.py 파일에서는  모델폼으로 그 겉폼틀의 코드를 작성하면 되고,
+# @ views.py에서는 렌더링 코드를 작성하면 되고,
+# @ html 파일에서는 <form action="{% url 'restaurant-create' %}" method="post">와 {% csrf_token %}와 <table>{{ form.as_table }}</table> 코드를 활용하여 코드를 완성하면 된다.
+
+------------------------------------------------------------------------------------------------------------
+
+---------------------------------- CRUD의 U (게시글 수정 수현하기) ----------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------
 
 ```
