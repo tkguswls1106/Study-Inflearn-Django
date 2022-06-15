@@ -1,0 +1,15 @@
+{% extends 'third/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <form action="{% url 'restaurant-update' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ form.instance.id }}"/>  <!-- 나중에 POST로 데이터가 전달이 될때 name='id'이므로, 'id'라는 이름표를 붙여서 던지게된다. -->
+                                                                         <!-- {{ form.instance.id }}은 views.py 파일의 update 메소드의 elif 부분의 특정 코드와 연계된다. -->
+        <table>
+            {{ form.as_table }}
+        </table>
+        <button type="submit">수정완료</button>
+    </form>
+</div>
+{% endblock %}
