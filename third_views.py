@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from third.models import Restaurant
 from django.core.paginator import Paginator
 from third.forms import RestaurantForm
@@ -51,3 +51,55 @@ def create(request):
 # @ forms.py 파일에서는  모델폼으로 그 겉폼틀의 코드를 작성하면 되고,
 # @ views.py에서는 렌더링 코드를 작성하면 되고,
 # @ html 파일에서는 <form action="{% url 'restaurant-create' %}" method="post">와 {% csrf_token %}와 <table>{{ form.as_table }}</table> 코드를 활용하여 코드를 완성하면 된다.
+
+def update(request):  # 리퀘스트와 데이터베이스를 직접 활용해서 업데이트하는 메소드
+    # 중요한점은, create 메소드는 그저 html파일에서 post로 제출한 그 값 그대로 갖고와서 form = RestaurantForm(request.POST) 처럼 새로 모델인스턴스를 만들어서 데이터베이스에 저장해주는게 끝이지만,
+    # 그러나 update 메소드는 기존 데이터베이스에 있던 인스턴스를 가져와서 그걸 참고하여 리퀘스트값을 다시 갱신을 해주는 것이기때문에 과정이 다르다.
+    # 이외의 부가 설명은: https://blossoming-man.tistory.com/entry/CRUD%EB%A5%BC-%EC%9C%84%ED%95%9C-ModelForm
+    if request.method == 'POST' and 'id' in request.POST:  # id값 없이 POST로 온 데이터가 있다면 그건 잘못 온 데이터이니까 'id' in request.POST 도 적어줘야 한다.
+        # item = Restaurant.objects.get(pk=request.POST.get('id'))  # 참고로 request.POST.get('id') 가 한묶음이다.
+        item = get_object_or_404(Restaurant, pk=request.POST.get('id'))  # id값이 없는 데이터라 로딩안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다. 참고로 shortcuts도 사용했다.
+        form = RestaurantForm(request.POST, instance=item)
+        if form.is_valid():
+            item = form.save()
+    elif request.method == 'GET':
+        # item = Restaurant.objects.get(pk=request.GET.get('id'))  # update.html 파일의 {{ form.instance.id }} 코드 부분과 연계된다.
+        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))  # id값이 없는 데이터라 로딩안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다. 참고로 shortcuts도 사용했다.
+        form = RestaurantForm(instance=item)  # update.html 파일의 {{ form.instance.id }} 코드 부분과 연계된다.
+        return render(request, 'third/update.html', {'form': form})
+    return HttpResponseRedirect('/third/list/')  # if와 elif 둘다 해당되지 않을때 url path를 '/third/list/'로 리다이렉트 시켜서, 리스트 화면으로 이동한다.
+# instance=item의 의미가 '참고하다'의 의미가 아닌, '수정될 데이터베이스의 모델 인스턴스' 라는 의미로 생각하면 훨씬 코드를 이해하기 쉽고, 그리고 이론적으로도 이게 더 정확한 표현이다.
+# 이러한 의미로 전체적인 과정을 쉽고 간단하게 요약해서 설명하자면,
+# <elif GET 부분> (아마 내 개인적인 생각 및 추측으로는, 가장 먼저 발생하는 일은 list.html 파일에서 데이터 목록중 하나를 골라 수정하기 버튼을 누르면 그 데이터의 id값이 쿼리 파라미터로 보내져서 GET방식이 되고, 그 id값에 맞는 겉폼형식이 나타나는 과정이 아닐까 싶다.)
+#   사용자가 쿼리 파라미터 id값을 지닌 url 사이트로 접속을 하면, 그 id값이 사이트 쿼리파라미터로 GET으로 보내지고,
+#   그렇게 쿼리파라미터로 받은 데이터의 id값과 동일한 pk id값의 데이터베이스의 모델 인스턴스를 item 변수에 넣어주고,
+#   form = RestaurantForm(instance=item) 안에 request.POST 매개변수가 없으므로, 그저 지정한 id의 item의 겉폼양식을 갖고와서 form 변수에 저장해준다.
+#   그렇게 해당 id의 겉폼 양식을 update.html 파일로 렌더링 해준다.
+# <라우팅을 통해 method=GET에서 POST로 전환>
+#   이렇게, id에 맞는 수정 겉폼 양식이 불려와진 update.html 에서 수정을 완료하고 제출하면, 그게 POST방식으로 리퀘스트 값을 가지고 urls.py 파일을 거쳐서 views.py 파일의 update 메소드로 와서 if POST 부분을 실행하게 되는 과정이 된다.
+# <if POST 부분>
+#   예를들어 불러와진 수정 겉폼양식에서 id=2 쿼리 파라미터의 모델 인스턴스의 데이터 필드의 name과 address 부분의 내용을 수정하여, name='바뀐거'과 address='바뀐거'으로 수정하여 제출을 눌렀다면,
+#   모델 인스턴스 데이터인 {id=2, name='원래꺼', address='원래꺼}가 아닌, {id=2, name='바뀐거', address='바뀐거'}가 request.POST 로 새로 입력한 모델 인스턴스가 리퀘스트값으로 보내진다.
+#   그렇게 리퀘스트값의 id=2과 동일한 id의 모델 인스턴스를 데이터베이스에서 가져와 item 변수에 넣어준다.
+#   그러면 이제 form = RestaurantForm(request.POST, instance=item) 코드의 의미는,
+#   수정 대상은 instance=item 이고 새로운 데이터는 request.POST 이므로, id=2인 데이터베이스의 모델 인스턴스를 {id=2, name='바뀐거', address='바뀐거'}로 바꿔주고, 그 바뀐정보를 form 변수에 넣어준다는 의미이다.
+#   하여튼 그렇게해서 form 변수에 저장된 모델 인스턴스 정보 값을 유효성 검사를 하고 통과하면 form.save()로 임시가 아닌 완전히 데이터베이스에 값을 저장함으로써, 데이터베이스의 item을 {id=2, name='바뀐거', address='바뀐거'}으로 갱신하여 업데이트가 된것이다.
+# ====================== // 이 밑의 설명은 초반에 잘못적은 약간 틀린 정리 요약이다. 혹시 쓸데가 있을지 몰라 삭제하지않고 남겨둘테니 주의하자. // ======================
+# 우선 가장 헷갈리는 instance=item의 의미부터 설명하자면, "item 모델 인스턴스의 겉껍떼기 필드 등등의 양식만 참고하겠다." 라는 의미이다.
+# 만약에 id값이 4로 부여된 item의 instance=item 라면, "pk=4에 해당하는 데이터베이스의 item 모델 인스턴스의 겉껍떼기 필드 등등의 양식만 참고하겠다." 라는 의미이다.
+# 이제 전체적인 과정을 쉽게 순서대로 설명하자면,
+# <elif GET 부분> (아마 내 개인적인 생각 및 추측으로는, 가장 먼저 발생하는 일은 list.html 파일에서 데이터 목록중 하나를 골라 수정하기 버튼을 누르면 그 데이터의 id값이 쿼리 파라미터로 보내져서 GET방식이 되고, 그 id값에 맞는 겉폼형식이 나타나는 과정이 아닐까 싶다.)
+#   사용자가 쿼리 파라미터 id값을 지닌 url 사이트로 접속을 하면, 그 id값이 사이트 쿼리파라미터로 GET으로 보내지고,
+#   그렇게 쿼리파라미터로 받은 데이터의 id값과 동일한 pk id값의 데이터베이스의 데이터 인스턴스를 item 변수에 넣어주고,
+#   form = RestaurantForm(instance=item) 안에 request.POST 매개변수가 없으므로 값 교체 없이, 그저 item과 같은 형식(필드 등등 껍데기 형식만)으로 겉폼양식을 갖고와서 form 변수에 저장해준다.
+#   그렇게 각 id값에 맞는 item 인스턴스 데이터의 모델폼의 겉폼양식을 갖고와서, 겉폼양식에 id에 매칭되는 필드 정보를 담은 수정 사이트 겉폼양식을 불러와서 update.html 파일로 렌더링 해준다.
+# <라우팅을 통해 method=GET에서 POST로 전환>
+#   이렇게, id에 맞는 수정 겉폼 양식이 불려와진 update.html 에서 수정을 완료하고 제출하면, 그게 POST방식으로 리퀘스트 값을 가지고 urls.py 파일을 거쳐서 views.py 파일의 update 메소드로 와서 if POST 부분을 실행하게 되는 과정이 된다.
+# <if POST 부분>
+#   예를들어 불러와진 수정 겉폼양식에서 id=2 쿼리 파라미터의 모델 인스턴스의 데이터 필드의 name과 address 부분의 내용을 수정하여, name='바뀐거'과 address='바뀐거'으로 수정하여 제출을 눌렀다면,
+#   모델 인스턴스 데이터인 {id=2, name='원래꺼', address='원래꺼}가 아닌, {id=2, name='바뀐거', address='바뀐거'}가 request.POST 로 새로 입력한 모델 인스턴스가 리퀘스트값으로 보내진다.
+#   그러면 리퀘스트된 모델 인스턴스의 pk=request.POST.get('id') 는 pk=2가 되고, 즉, item = Restaurant.objects.get(pk=request.POST.get('id')) 코드는 item = Restaurant.objects.get(pk=2) 가 되고, 이 코드의 의미는
+#   이미 저장되어있는 데이터베이스에서 id=2인 모델 인스턴스를 불러와서 item 변수에 할당한다라는 의미인 것이다.
+#   그러면 이제 form = RestaurantForm(request.POST, instance=item) 코드의 의미는, instance=item는 데이터베이스에서 불러온 item 모델 인스턴스의 형식(필드 목록 등등)을 참고하여, request.POST인 {id=2, name='바뀐거', address='바뀐거'}로 item과 같은 형식(필드 목록 등등의 형식만)의 모델 인스턴스를 만들어서 form 변수에 저장한다는 의미인 것이다.
+#   즉, 수정 대상은 instance=item 이었고, 새로운 데이터는 request.POST 인 것이다.
+#   하여튼 그렇게해서 form에 저장된 값을 유효성 검사를 하고 통과하면 form.save()로 임시가 아닌 완전히 데이터베이스에 값을 저장함으로써 업데이트가 된것이다.
