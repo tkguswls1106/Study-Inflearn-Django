@@ -1,0 +1,14 @@
+{% extends 'third/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="margin-top:20px;">
+            <h3>{{ item.name }}</h3>
+            <p>
+                {{ item.address }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
