@@ -518,4 +518,22 @@ def detail(request):
 
 ------------------------------------------------------------------------------------------------------------
 
+---------------------------------- CRUD의 D (게시글 삭제 구현하기) ----------------------------------
+
+def delete(request):
+    if 'id' in request.GET:
+        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))
+        item.delete()
+    return HttpResponseRedirect('/third/list/')  # 리스트 화면으로 이동한다. 이 코드줄은 if문 조건에 맞던안맞던간에 무조건 실행된다.
+
+// 참고로 삭제하기 기능을 위해 delete.html 파일을 따로 만든것이 아닌, '자세히 보기'를 눌렀을때 뜨는 detail.html 파일에 함께 '삭제하기 버튼'을 만들어주었다.
+
+// {% for item in restaurants %}
+// 	<a href="{% url 'restaurant-delete' %}?id={{ item.id }}">  # 이처럼 html파일에서 삭제할 데이터의 쿼리파라미터 id값을 GET방식으로 넘겨줄수있다.
+//              <button class="btn btn-danger">삭제하기</button>
+//          </a>
+// {% endfor %}
+
+------------------------------------------------------------------------------------------------------------
+
 ```
