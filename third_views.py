@@ -113,3 +113,9 @@ def detail(request):
                                                                         # 결론적으로, item에 '가져온 id에 맞는 데이터베이스 데이터' 또는 '404'를 할당해준다는 것이다.
         return render(request, 'third/detail.html', {'item': item})
     return HttpResponseRedirect('/third/list/')  # 만약 정상적으로 id가 오지않았을때(= 값이 제대로 전달되지 않았다), 리스트 화면으로 이동한다.
+
+def delete(request):
+    if 'id' in request.GET:
+        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))
+        item.delete()
+    return HttpResponseRedirect('/third/list/')  # 리스트 화면으로 이동한다. 이 코드줄은 if문 조건에 맞던안맞던간에 무조건 실행된다.
