@@ -103,3 +103,13 @@ def update(request):  # 리퀘스트와 데이터베이스를 직접 활용해�
 #   그러면 이제 form = RestaurantForm(request.POST, instance=item) 코드의 의미는, instance=item는 데이터베이스에서 불러온 item 모델 인스턴스의 형식(필드 목록 등등)을 참고하여, request.POST인 {id=2, name='바뀐거', address='바뀐거'}로 item과 같은 형식(필드 목록 등등의 형식만)의 모델 인스턴스를 만들어서 form 변수에 저장한다는 의미인 것이다.
 #   즉, 수정 대상은 instance=item 이었고, 새로운 데이터는 request.POST 인 것이다.
 #   하여튼 그렇게해서 form에 저장된 값을 유효성 검사를 하고 통과하면 form.save()로 임시가 아닌 완전히 데이터베이스에 값을 저장함으로써 업데이트가 된것이다.
+
+def detail(request):
+    if 'id' in request.GET:  # 만약 정상적으로 id가 왔을때
+        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))  # 정상적으로 id가 왔을때 그 id값에 매칭되는 모델 인스턴스가 데이터베이스에 존재하면 그걸 item에 할당해주고,
+                                                                        # id는 잘 받았지만, id에 매칭되는 모델 인스턴스가 데이터베이스에 존재하지 않으면 404를 대신 item에 넣어준다.
+                                                                        # 그러면, id값이 없는 데이터라 로딩이 안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다.
+                                                                        # 참고로 이건 shortcuts 소속 라이브러리 이다.
+                                                                        # 결론적으로, item에 '가져온 id에 맞는 데이터베이스 데이터' 또는 '404'를 할당해준다는 것이다.
+        return render(request, 'third/detail.html', {'item': item})
+    return HttpResponseRedirect('/third/list/')  # 만약 정상적으로 id가 오지않았을때(= 값이 제대로 전달되지 않았다), 리스트 화면으로 이동한다.
