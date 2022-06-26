@@ -536,4 +536,49 @@ def delete(request):
 
 ------------------------------------------------------------------------------------------------------------
 
+Relation (릴레이션): 릴레이션은 모델과 모델간의 종속 관계를 정의한다. 밑의 총 3가지로 나뉜다.
+Many-to-Many: 출판사와 저작물의 관계. 하나의 저작물을 여러 출판사에서 낼 수도 있고, 반대로 하나의 출판사가 여러 저작물을 낸다.
+Many-to-One: 게시물과 댓글의 관계, 한 사용자와 결제 내역의 관계. 게시물 한 개에는 여러 개의 댓글이 달린다. 예를들어 음식점 리뷰에 사용. (레스토랑이 1개고, 리뷰가 여러개다. 처럼 되는 것임.)
+One-to-One: 여권과 사람의 관계. 한 사람은 하나의 여권만 가질 수 있다. 여권을 가지고 있지 않은 사람도 있지만 동시에 자신의 여권을 여러개를 가진 사람은 없다.
+
+<models.py 파일의 릴레이션 부분>
+class Review(models.Model):
+    point = models.IntegerField()
+    comment = models.CharField(max_length = 500)
+
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)  # Restaurant 모델클래스의 ForeignKey 를 갖고온다.
+    # 위의 모델클래스을class Restaurant 와의 릴레이션 정의.
+    # Many-to-one 관계로써, many는 모델클래스 Review이고, one은 모델클래스 Restaurant 이다.
+
+    # ForeignKey 는 외래키로써, 외부에서 온 키를 의미하고, 이는 모델클래스 Restaurant 의 primary key ( = pk id 값 1 ~) 를 의미한다.
+    # 만약에 Restaurant 를 하나 처음으로 하나 등록하면 그 pk값은 1이 될테고, 그 레스토랑의 리뷰다 함은 ForeignKey 는 1이 되는것이다.
+    # 즉, 각 레스토랑마다 각각의 리뷰들을 적용해주는 것으로써,
+    # 현재 보고 있는 리뷰 데이터가 어느 레스토랑(식당)을 가리키고 있는지 지정하기위한 속성이 restaurant 인것이다.
+
+    # 만약에 특정 식당이 삭제되면 그 해당 식당의 리뷰들은 없는 식당을 참조하게되는거니까, 이경우에는 상황을 어떻게 처리할지를 물어보는 의미로써, on_delete=models.CASCADE 를 적어줌으로써, 식당이 삭제되면 리뷰들도 같이 삭제되게 한다. (정확히 말하면 식당을 가리키는 리뷰의 pk값을 삭제함으로써, 결과적으로 리뷰를 삭제하게 되는것이다.)
+    # on_delete=models.CASCADE 의 의미를 풀어서 자세히 설명하자면, 
+    # on_delete 라는 속성은, restaurant가 바라보고 있는 모델클래스인 Restaurant의 데이터가 삭제되었을때, 판단을 어떻게 처리할것인가? 라는 의미이고,
+    # models.CASCADE 의 의미는, 참조한 오브젝트(models인 모델클래스 Restaurant)가 삭제되면, 이를 똑같이 따라서(CASCADE) 해당 오브젝트를 참조한 오브젝트인 restaurant도 함께 삭제하라는 의미이다.
+
+    # 만약에 CASCADE가 아닌, SET_NULL이 들어가서 on_delete=models.SET_NULL 라는 코드였다고 가정한다면,
+    # 이는 특정 식당이 삭제되면, 그 식당에 해당하는 리뷰의 restaurant(= 해당 식당의 리뷰의 pk id값)을 NULL값으로 바꿔줌으로써, 리뷰를 삭제하는것이 아닌, 리뷰가 가리키는 식당이 없도록 만들어줌으로써, 식당만 삭제하고 그저 리뷰는 가리키는 곳이 없도록 설정해준 것이다.
+
+    created_at = models.DateTimeField(auto_now_add=True)  # 리뷰 작성 시 (이 모델의 데이터(레코드) 저장 시) 생성 시각
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # 여기까지 models.py 파일의 Review 모델클래스를 작성을 완료하였다면,
+    # 항상 models.py 파일을 바꿀때마다 반드시 해줘야하는 python3 manage.py makemigrations 와 python3 manage.py migrate 를 해주어야한다.
+    # 다 완료했다면, db.sqlite3 파일에 들어가보면 restaurant가 restaurant_id 라는 이름의 속성으로 db에 자동 저장된것을 확인할 수 있다.
+
+<위에서 CASCADE 외의 여러가지 속성들 인터넷에서 복붙해옴>
+CASCADE: 참조 된 오브젝트가 삭제되면 해당 오브젝트를 참조하는 오브젝트도 삭제하십시오 (예를 들어 블로그 게시물을 제거 할 때 주석도 삭제하려고 할 수 있음). SQL에 상응하는 내용 : CASCADE.
+PROTECT: 참조 된 객체의 삭제를 금지합니다. 삭제하려면 수동으로 참조하는 모든 객체를 삭제해야합니다. SQL에 상응하는 내용 : RESTRICT.
+SET_NULL: 참조를 NULL로 설정하십시오 (필드가 널 입력 가능해야 함). 예를 들어, 사용자를 삭제할 때 블로그 게시물에 게시 한 주석은 유지하지만 익명 (또는 삭제 된) 사용자가 게시 한 것으로 말할 수 있습니다. SQL에 상응하는 내용 : SET NULL.
+SET_DEFAULT: 기본값을 설정합니다. SQL에 상응하는 내용 : SET DEFAULT.
+SET(...): 주어진 값을 설정합니다. 이것은 SQL 표준의 일부가 아니며 Django가 전적으로 처리합니다.
+DO_NOTHING: 데이터베이스에 무결성 문제 (실제로는 존재하지 않는 개체 참조)가 발생할 수 있으므로 매우 나쁜 아이디어 일 수 있습니다. SQL에 상응하는 내용 : NO ACTION.
+
+------------------------------------------------------------------------------------------------------------
+
+
 ```
