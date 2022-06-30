@@ -13,7 +13,7 @@ class Review(models.Model):
     comment = models.CharField(max_length = 500)
 
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)  # Restaurant 모델클래스의 ForeignKey 를 갖고온다.
-    # 위의 모델클래스을class Restaurant 와의 릴레이션 정의.
+    # 위의 모델클래스를 class Restaurant 와의 릴레이션 정의.
     # Many-to-one 관계로써, many는 모델클래스 Review이고, one은 모델클래스 Restaurant 이다.
 
     # ForeignKey 는 외래키로써, 외부에서 온 키를 의미하고, 이는 모델클래스 Restaurant 의 primary key ( = pk id 값 1 ~) 를 의미한다.
