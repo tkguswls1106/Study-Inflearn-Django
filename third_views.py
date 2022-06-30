@@ -1,7 +1,7 @@
-from django.shortcuts import render, get_object_or_404
-from third.models import Restaurant
+from django.shortcuts import render, get_object_or_404, redirect
+from third.models import Restaurant, Review
 from django.core.paginator import Paginator
-from third.forms import RestaurantForm
+from third.forms import RestaurantForm, ReviewForm
 from django.http import HttpResponseRedirect
 
 
@@ -104,14 +104,18 @@ def update(request):  # 리퀘스트와 데이터베이스를 직접 활용해�
 #   즉, 수정 대상은 instance=item 이었고, 새로운 데이터는 request.POST 인 것이다.
 #   하여튼 그렇게해서 form에 저장된 값을 유효성 검사를 하고 통과하면 form.save()로 임시가 아닌 완전히 데이터베이스에 값을 저장함으로써 업데이트가 된것이다.
 
-def detail(request):
-    if 'id' in request.GET:  # 만약 정상적으로 id가 왔을때
-        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))  # 정상적으로 id가 왔을때 그 id값에 매칭되는 모델 인스턴스가 데이터베이스에 존재하면 그걸 item에 할당해주고,
+def detail(request, id):  # urls.py 파일에서 패스파라미터로 id값을 받을수있게 해놨기때문에, 매개변수로 id를 추가로 넣을 수 있게되었다.
+                         # 여기서 가장 중요한점은, 리퀘스트로 받아온것이 아니고 아예 패스파라미터로 메소드 매개변수로 id값을 가져온것이기 때문에 request.GET 이런거 필요없다.
+    if id is not None:
+        item = get_object_or_404(Restaurant, pk=id)  # 패스파라미터를 매개변수로 받아옴으로써, 더욱 간단하게 쓸 수 있게 됨.
+    # if 'id' in request.GET:  # 만약 정상적으로 id가 왔을때
+    #   item = get_object_or_404(Restaurant, pk=request.GET.get('id'))  # 정상적으로 id가 왔을때 그 id값에 매칭되는 모델 인스턴스가 데이터베이스에 존재하면 그걸 item에 할당해주고,
                                                                         # id는 잘 받았지만, id에 매칭되는 모델 인스턴스가 데이터베이스에 존재하지 않으면 404를 대신 item에 넣어준다.
                                                                         # 그러면, id값이 없는 데이터라 로딩이 안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다.
                                                                         # 참고로 이건 shortcuts 소속 라이브러리 이다.
                                                                         # 결론적으로, item에 '가져온 id에 맞는 데이터베이스 데이터' 또는 '404'를 할당해준다는 것이다.
-        return render(request, 'third/detail.html', {'item': item})
+        reviews = Review.objects.filter(restaurant=item).all()  # 참고로 forms.py 파일의 모델폼을 쓰는것이 아니라, models.py 파일의 모델을 사용해야한다. 즉, 데이터베이스에 저장된건 models.py 파일의 변수니까 Review 를 사용해야하는 것이다.
+        return render(request, 'third/detail.html', {'item': item, 'reviews': reviews})
     return HttpResponseRedirect('/third/list/')  # 만약 정상적으로 id가 오지않았을때(= 값이 제대로 전달되지 않았다), 리스트 화면으로 이동한다.
 
 def delete(request):
@@ -119,3 +123,15 @@ def delete(request):
         item = get_object_or_404(Restaurant, pk=request.GET.get('id'))
         item.delete()
     return HttpResponseRedirect('/third/list/')  # 리스트 화면으로 이동한다. 이 코드줄은 if문 조건에 맞던안맞던간에 무조건 실행된다.
+
+def review_create(request, restaurant_id):
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():  # 데이터가 form 클래스에서 정의한 조건 (max_length 등)을 만족하는지 체크합니다.
+            new_item = form.save()  # save 메소드로 입력받은 데이터를 레코드로 추가합니다.
+        return redirect('restaurant-detail', id=restaurant_id)  # 전화면으로 이동합니다.
+    item = get_object_or_404(Restaurant, pk=restaurant_id)  # 이 item은 바로 밑줄의 코드에서도 사용됨.
+    form = ReviewForm(initial={'restaurant': item})  # 릴레이션 때문에 어느 레스토랑의 리뷰인지 미리 그 정보를 갖고와서 그거에 기반한 겉폼양식을 생성해놔야지 겉폼양식을 전달할수있기때문에 initial을 사용하였음. (예를들어, 이 리뷰는 5번 레스토랑의 리뷰니까 5번 겉폼양식을 갖다주라는 의미인 것이다.)
+    return render(request, 'third/review_create.html', {'form': form, 'item':item})  # 겉폼양식과 현재 불러온 item 정보도 함께 두가지를 html파일로 넘겨준다.
+                                                                                     # 굳이 item 까지 넘겨주는 이유는, review_create.html 파일에서 <form action="{% url 'review-create' restaurant_id=item.id %}" 부분의 item.id 부분으로 렌더링받은 item의 id 값을 갖고와야하기 때문이다.
+                                                            
