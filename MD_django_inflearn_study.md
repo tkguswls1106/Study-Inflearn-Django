@@ -682,6 +682,29 @@ def review_create(request, restaurant_id):
 
 조인: 서로 릴레이션되어있는 모델인 서로 다른 테이블(서로 다른 모델 클래스)의 데이터들(레코드들)을 쏙쏙 필요한것만 뽑아서 새로운 테이블(레코드셋)로 결집해주는것을 조인(join)이라고 한다.
 
+<third_views.py 파일>
+def review_list(request):
+    reviews = Review.objects.all().select_related().order_by('-created_at')  # 최신순으로 정렬
+                                                                             # select_related()로 조인 해줌.
+                                                                             # 설명하자면, select_related() 이거를 적어줌으로써, 
+                                                                             # Review 모델클래스와 릴레이션되어있는 Restaurant 모델클래스의 정보까지 모두 들고와줌으로써 조인 해준것이다.
+    paginator = Paginator(reviews, 10)  # 한 페이지에 10개씩 표시
+
+    page = request.GET.get('page')  # 어떤 페이지의 조회를 원했는지 쿼리파라미터에서 page 데이터를 가져옴
+    items = paginator.get_page(page)  # 해당 페이지에 들어있는 필드 정보들을 items에 넣음.
+
+    context = {
+        'reviews': items
+    }
+    return render(request, 'third/review_list.html', context)
+
+<third_templates_third_review_list.html 파일>
+{% for item in reviews %}
+    {{ item.restaurant.name }}  <!-- Review 모델클래스의 restaurant 필드가 가리키는 pk id의, Restaurant 모델클래스의 name 필드 / 조인 덕분에 릴레이션 관계의 데이터를 가져올수있게된것임 -->
+{% endfor %}
+
+------------------------------------------------------------------------------------------------------------
+
 
 
 ```
