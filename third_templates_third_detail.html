@@ -20,7 +20,19 @@
                 </a>
             </p>
             {% for review in reviews %}
-                리뷰: {{ review.comment }}, 평점: {{ review.point }}점
+                <div class="card bg-light mb-3">
+                  <div class="card-header">
+                    <b>{{ review.point }}</b>점
+                    <a href="{% url 'review-delete' restaurant_id=item.id review_id=review.id %}">
+                        <button type="button" class="close" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </a>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text">{{ review.comment }}</p>
+                  </div>
+                </div>
             {% endfor %}
             <!--
                 filter로 하나의 리뷰 데이터만 불러왔는데 왜 for문을 쓰는가 하고 어렵게 생각하지말고,
