@@ -139,3 +139,18 @@ def review_delete(request, restaurant_id, review_id):
     item = get_object_or_404(Review, pk=review_id)
     item.delete()
     return redirect('restaurant-detail', id=restaurant_id)  # 특정 레스토랑의 리뷰삭제후, 해당 레스토랑의 자세히보기 페이지인 이전화면으로 이동시킴.
+
+def review_list(request):
+    reviews = Review.objects.all().select_related().order_by('-created_at')  # 최신순으로 정렬
+                                                                             # select_related()로 조인 해줌.
+                                                                             # 설명하자면, select_related() 이거를 적어줌으로써, 
+                                                                             # Review 모델클래스와 릴레이션되어있는 Restaurant 모델클래스의 정보까지 모두 들고와줌으로써 조인 해준것이다.
+    paginator = Paginator(reviews, 10)  # 한 페이지에 10개씩 표시
+
+    page = request.GET.get('page')  # 어떤 페이지의 조회를 원했는지 쿼리파라미터에서 page 데이터를 가져옴
+    items = paginator.get_page(page)  # 해당 페이지에 들어있는 필드 정보들을 items에 넣음.
+
+    context = {
+        'reviews': items
+    }
+    return render(request, 'third/review_list.html', context)
