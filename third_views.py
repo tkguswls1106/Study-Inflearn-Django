@@ -129,9 +129,13 @@ def review_create(request, restaurant_id):
         form = ReviewForm(request.POST)
         if form.is_valid():  # 데이터가 form 클래스에서 정의한 조건 (max_length 등)을 만족하는지 체크합니다.
             new_item = form.save()  # save 메소드로 입력받은 데이터를 레코드로 추가합니다.
-        return redirect('restaurant-detail', id=restaurant_id)  # 전화면으로 이동합니다.
+        return redirect('restaurant-detail', id=restaurant_id)  # 리뷰작성이 끝났다면, 해당 레스토랑의 자세히보기 페이지로 다시이동시킴.
     item = get_object_or_404(Restaurant, pk=restaurant_id)  # 이 item은 바로 밑줄의 코드에서도 사용됨.
     form = ReviewForm(initial={'restaurant': item})  # 릴레이션 때문에 어느 레스토랑의 리뷰인지 미리 그 정보를 갖고와서 그거에 기반한 겉폼양식을 생성해놔야지 겉폼양식을 전달할수있기때문에 initial을 사용하였음. (예를들어, 이 리뷰는 5번 레스토랑의 리뷰니까 5번 겉폼양식을 갖다주라는 의미인 것이다.)
     return render(request, 'third/review_create.html', {'form': form, 'item':item})  # 겉폼양식과 현재 불러온 item 정보도 함께 두가지를 html파일로 넘겨준다.
                                                                                      # 굳이 item 까지 넘겨주는 이유는, review_create.html 파일에서 <form action="{% url 'review-create' restaurant_id=item.id %}" 부분의 item.id 부분으로 렌더링받은 item의 id 값을 갖고와야하기 때문이다.
-                                                            
+
+def review_delete(request, restaurant_id, review_id):
+    item = get_object_or_404(Review, pk=review_id)
+    item.delete()
+    return redirect('restaurant-detail', id=restaurant_id)  # 특정 레스토랑의 리뷰삭제후, 해당 레스토랑의 자세히보기 페이지인 이전화면으로 이동시킴.
