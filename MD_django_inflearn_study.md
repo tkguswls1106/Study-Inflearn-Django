@@ -524,11 +524,14 @@ def detail(request):
 
 // # <third_urls.py 파일>
 // path('detail/', views.detail, name='restaurant-detail')
+# 쿼리파라미터 방법과 다르게 패스파라미터는 해석하는 방식이 다르니 주의하자.
 # href의 큰따옴표 ""안에가 "{% url 'restaurant-detail' %}?id={{ item.id }}" 이므로,
+# 이 의미는, urls.py 파일에서 path의 name이 restaurant-detail 인 부분을 보게되고,
 # {% url 'restaurant-detail' %} 부분이 나타내는 path의 detail/ 과,
 # ?id={{ item.id }} 부분이 나타내는 ?id=2 가 합쳐져서,
 # detail/?id=2 이러한 url이 적혀진다.
-# 그러면 사이트 url이 http://127.0.0.1:8000/third/detail/?id=2 이런식으로 적혀진다.
+# 그러면 사이트 url이 http://127.0.0.1:8000/third/detail/?id=2 이런식으로 적혀져서 링크이동 접속하게 해준다.
+# 동시에 views.py 파일의 def detail 메소드를 실행시킨다.
 
 
 => 나중에 패스파라미터 방식으로 바뀌어진것은 밑부분에 적어두었음.
@@ -547,15 +550,21 @@ def detail(request, id):  # urls.py 파일에서 패스파라미터로 id값을 
 // {% for item in restaurants %}
 // 	<a href="{% url 'restaurant-detail' id=item.id %}" class="card-link">자세히 보기</a>
 // {% endfor %}
+# 쿼리파라미터 방법과 다르게 패스파라미터는 해석하는 방식이 다르니 주의하자.
+# href의 큰따옴표 ""안에를 위주로 읽어서 해석하면 된다.
+# {} 중괄호로 하나로 전부 묶여있어 이 안쪽 부분을 보면된다.
+# 먼저 이를 해석하자면, path의 name이 restaurant-detail인 부분으로 가서 링크틀에 id=item.id 를 넣고 그 링크로 이동하며, 동시에 해당 path의 view파일 메소드를 실행하라는 의미이다.
+# % url 'restaurant-detail' 이므로, urls.py 파일의 path의 name이 restaurant-detail 인 path를 가리키며,
+# id=item.id 을 렌더링하듯이 해당 path에 id를 사용할 수 있게 넘겨주는 것이다.
+# 그러면 path의 첫번째 매개변수 부분에 순서상관없이 원하는 링크를 구성할 수 있게되는것이다.
+# 그래서 밑의 third_urls.py 파일에서 'restaurant/<int:id>/' 이렇게 적을수있게 된것이다.
+# 원하는대로 적는거니까 '<int:id>/restaurantABCD/' 뭐 이런식으로 적어도 상관없는 것이다.
 
 // # <third_urls.py 파일>
 // path('restaurant/<int:id>/', views.detail, name='restaurant-detail'),  # detail 의 주소를 패스파라미터(쿼리파라미터 말고)를 사용할 수 있도록 재정의함.
-# href의 큰따옴표 ""안에가 "{% url 'restaurant-detail' id=item.id %}" 이므로,
-# {} 중괄호로 하나로 전부 묶여있어,
-# 앞부분의 {% url 'restaurant-detail' 부분이 나타내는 path의 restaurant/ 와,
-# 뒷부분의 id=item.id %} 부분이 나타내는 2/ 가 합쳐져서,
-# restaurant/2/ 이러한 url이 적혀진다.
-# 그러면 사이트 url이 http://127.0.0.1:8000/restaurant/2/ 이런식으로 적혀진다.
+# id값을 받아와서 링크를 원하는대로 'restaurant/<int:id>/' 라고 적었으므로,
+# 그러면 사이트 url이 http://127.0.0.1:8000/restaurant/2/ 이런식으로 적혀져서 사이트 접속이 이루어진다.
+# 그리고 그와 동시에 views.py 파일의 def detail 메소드를 실행한다.
 
 // 만약 third_templates_third_list.html 파일에서 id=item.id 이 아니라, shj=item.id 라고 적었다면,
 // third_views.py 파일에도 def detail(request, shj): 로, pk=shj 로 바꿔줘야하고,
@@ -572,6 +581,20 @@ def detail(request, id):  # urls.py 파일에서 패스파라미터로 id값을 
     for문으로 렌더링해온 데이터베이스의 내부값을 쭈우욱 여러개 전부 출력해주는게 맞지만, 그걸 filter로 한가지데이터로만 국한되게 제한시켜서 하나만 출력시킨거라 생각하면 편하다.
     그니까 .all()로 렌더링해온 데이터베이스 사용할때는 for문은 무조건 똑같이 써야하되, 그걸 렌더링해서 줄때 filter로 특정 데이터로 제한시켜서 보냈는가 아닌가에 초점을 맞춰서 생각하면 되는 것이다.
 -->
+
+// 만약에 여러 패스파라미터 인자를 사용하게 된다면, 그냥 띄어쓰기 한칸하고 그대로 계속 적어주면 된다.
+// 예를들어
+// detail.html 파일에서는
+{% for review in reviews %}
+    <a href="{% url 'review-delete' restaurant_id=item.id review_id=review.id %}">리뷰삭제하기</a>
+{% endfor %}
+// urls.py 파일에서는
+path('restaurant/<int:restaurant_id>/review/delete/<int:review_id>', views.review_delete, name='review-delete')
+// 이런식으로 말이다.
+
+// 한가지 헷갈릴수있는점은 "{% url 'name'}" 이거를 <form action="{% url 'name'}"> </form> 이런식으로만 사용할수있다고 생각하면 안되고,
+// <a href="{% url 'name'}"> </a> 이런식으로도 사용할 수 있다.
+// 단, 이것은 그저 패스파라미터 값을 넘겨줌과 동시에 그 패스파라미터를 이용한 접속링크이동을 하고 해당 path의 views.py 메소드를 실행할때 사용하는것이지, 특별한 다른 렌더링값이 있을때는 form action으로 사용하면 된다.
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -649,13 +672,14 @@ def review_create(request, restaurant_id):
         form = ReviewForm(request.POST)
         if form.is_valid():  # 데이터가 form 클래스에서 정의한 조건 (max_length 등)을 만족하는지 체크합니다.
             new_item = form.save()  # save 메소드로 입력받은 데이터를 레코드로 추가합니다.
-        return redirect('restaurant-detail', id=restaurant_id)  # 전화면으로 이동합니다.
+        return redirect('restaurant-detail', id=restaurant_id)  # 리뷰작성이 끝났다면, 해당 레스토랑의 자세히보기 페이지로 다시이동시킴.
     item = get_object_or_404(Restaurant, pk=restaurant_id)  # 이 item은 바로 밑줄의 코드에서도 사용됨.
     form = ReviewForm(initial={'restaurant': item})  # 릴레이션 때문에 어느 레스토랑의 리뷰인지 미리 그 정보를 갖고와서 그거에 기반한 겉폼양식을 생성해놔야지 겉폼양식을 전달할수있기때문에 initial을 사용하였음. (예를들어, 이 리뷰는 5번 레스토랑의 리뷰니까 5번 겉폼양식을 갖다주라는 의미인 것이다.)
     return render(request, 'third/review_create.html', {'form': form, 'item':item})  # 겉폼양식과 현재 불러온 item 정보도 함께 두가지를 html파일로 넘겨준다.
                                                                                      # 굳이 item 까지 넘겨주는 이유는, review_create.html 파일에서 <form action="{% url 'review-create' restaurant_id=item.id %}" 부분의 item.id 부분으로 렌더링받은 item의 id 값을 갖고와야하기 때문이다.
 
 ------------------------------------------------------------------------------------------------------------
+
 
 
 ```
