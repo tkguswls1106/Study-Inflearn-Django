@@ -10,4 +10,5 @@ urlpatterns = [
     # path('detail/', views.detail, name='restaurant-detail'),
     path('restaurant/<int:id>/', views.detail, name='restaurant-detail'),  # detail 의 주소를 패스파라미터(쿼리파라미터 말고)를 사용할 수 있도록 재정의함.
     path('restaurant/<int:restaurant_id>/review/create/', views.review_create, name='review-create'),
+    path('restaurant/<int:restaurant_id>/review/delete/<int:review_id>', views.review_delete, name='review-delete'),
 ]
