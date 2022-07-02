@@ -1,0 +1,41 @@
+{% extends 'third/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    {% for item in reviews %}  <!-- 한페이지 목록의 Review 모델클래스의 여러 데이터들이 reviews고, 그중 하나의 필드모음 데이터가 item이다. -->
+    <div class="row restaurant-item" style="margin:20px auto;">
+        <div class="col-sm-12">
+            <div class="card border-secondary">
+              <div class="card-body">
+                <h5 class="card-title">{{ item.restaurant.name }}</h5>  <!-- Review 모델클래스의 restaurant 필드가 가리키는 pk id의, Restaurant 모델클래스의 name 필드 / 조인 덕분에 릴레이션 관계의 데이터를 가져올수있게된것임 -->
+                <h6 class="card-subtitle mb-2 text-muted">{{ item.restaurant.address }}</h6>  <!-- Review 모델클래스의 restaurant 필드가 가리키는 pk id의, Restaurant 모델클래스의 address 필드 / 조인 덕분에 릴레이션 관계의 데이터를 가져올수있게된것임 -->
+                <p class="card-text">{{ item.point }}점 / {{ item.comment }}</p>  <!-- Review 모델클래스의, point 필드와 comment 필드 -->
+              </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <div class="pagination">
+                <span class="step-links text-center" style="width:100%;">
+                    {% if reviews.has_previous %}  <!-- has_previous()는 이전 페이지의 유무를 boolean 으로 반환 -->
+                        <a href="?page=1">&laquo;</a>  <!-- &laquo;는 << 이다. -->
+                        <a href="?page={{ reviews.previous_page_number }}">{{ reviews.previous_page_number }}</a>  <!-- previous_page_number는 이전 페이지 번호 반환이다. -->
+                    {% endif %}
+
+                    <span class="current">
+                        {{ reviews.number }}  <!-- 현재페이지는 number로 표시하면된다. -->
+                    </span>
+
+                    {% if reviews.has_next %}  <!-- has_next()는 다음 페이지의 유무를 boolean 으로 반환 -->
+                        <a href="?page={{ reviews.next_page_number }}">{{ reviews.next_page_number }}</a>  <!-- next_page_number는 아마도 다음 페이지 번호 반환이다. -->
+                        ...
+                        <a href="?page={{ reviews.paginator.num_pages }}">&raquo;</a>  <!-- paginator.num_pages 는 페이지의 총개수를 의미한다. = 페이지 마지막 번호 -->
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
