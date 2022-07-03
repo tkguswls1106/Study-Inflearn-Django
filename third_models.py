@@ -5,9 +5,14 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=30)
     address = models.CharField(max_length=200)
 
+    password = models.CharField(max_length=20, default=None, null=True)  # 기존에 이미 작성되어 사용되고있는 모델클래스에, 어떠한 새로운 필드를 추가할때에는, 초기값을 초기화해줘야하므로 default=None 을 적은것이다. 용도에 따라 default 의 초기화값을 알아서 ''라던가 등등 적절히 적도록하자.
+                                                                         # 이 경우는 초반에도 패스워드 없이도 작동할 수 있게 하기위해 None으로 지정해준것이다.
+                                                                         # default=None 이면, 모든 password값이 null값으로 설정되고, 그렇기에 뒤에 null=True 도 적어주어야한다.
+    image = models.CharField(max_length=500, default=None, null=True)  # image의 url을 넣을것이기때문에 문자열이라 CharField을 사용하였음.
+
     created_at = models.DateTimeField(auto_now_add=True)  # 이 스키마를 따르는 게시물이 생성될때, 해당 이 게시글이 쓰여진 시각이 자동으로 기록됨.
     updated_at = models.DateTimeField(auto_now=True)  # 최근 수정일. 생성될때 넣을 데이터가 아니고, 수정될때마다 넣을 데이터이기때문에, _add 를 붙이지않는다.
-
+    
 class Review(models.Model):
     point = models.IntegerField()
     comment = models.CharField(max_length = 500)
