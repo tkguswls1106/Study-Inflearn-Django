@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from third.models import Restaurant, Review
 from django.core.paginator import Paginator
-from third.forms import RestaurantForm, ReviewForm
+from third.forms import RestaurantForm, ReviewForm, UpdateRestaurantForm
 from django.http import HttpResponseRedirect
 from django.db.models import Count, Avg
 
@@ -85,8 +85,10 @@ def update(request):  # 리퀘스트와 데이터베이스를 직접 활용해�
     if request.method == 'POST' and 'id' in request.POST:  # id값 없이 POST로 온 데이터가 있다면 그건 잘못 온 데이터이니까 'id' in request.POST 도 적어줘야 한다.
         # item = Restaurant.objects.get(pk=request.POST.get('id'))  # 참고로 request.POST.get('id') 가 한묶음이다.
         item = get_object_or_404(Restaurant, pk=request.POST.get('id'))  # id값이 없는 데이터라 로딩안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다. 참고로 shortcuts도 사용했다.
-        form = RestaurantForm(request.POST, instance=item)
-        if form.is_valid():
+        password = request.POST.get('password', '')  # 'password' 값이 정상적으로 전달이 되었다면 'password' 값을 password 변수에 할당하고,
+                                                     # 'password' 값이 정상적으로 전달되지 않았다면, 빈 문자열인 ''값이 password 변수에 할당되는 것이다.
+        form = UpdateRestaurantForm(request.POST, instance=item)  # 어차피 UpdateRestaurantForm 모델폼클래스도 model = Restaurant 라서, RestaurantForm 모델폼클래스와 마찬가지로 리퀘스트로 받아온 게시물 수정 필드값을 그대로 저장해줄 수 있음.
+        if form.is_valid() and password == item.password:  # and 이후의 코드는, 입력한 패스워드 DB의 패스워드와 일치하는지 검증하는 코드이다.
             item = form.save()
     elif request.method == 'GET':
         # item = Restaurant.objects.get(pk=request.GET.get('id'))  # update.html 파일의 {{ form.instance.id }} 코드 부분과 연계된다.
