@@ -570,8 +570,8 @@ def detail(request, id):  # urls.py 파일에서 패스파라미터로 id값을 
 # 그리고 그와 동시에 views.py 파일의 def detail 메소드를 실행한다.
 
 // 만약 third_templates_third_list.html 파일에서 id=item.id 이 아니라, shj=item.id 라고 적었다면,
-// third_views.py 파일에도 def detail(request, shj): 로, pk=shj 로 바꿔줘야하고,
-// third_urls.py 파일에도 restaurant/<int:shj>/ 로 바꿔줘야한다.
+// third_urls.py 파일에도 restaurant/<int:shj>/ 로 바꿔줘야하고,
+// third_views.py 파일에도 def detail(request, shj): 로, pk=shj 로 바꿔줘야한다.
 
 // 위의 렌더링한 reviews = Review.objects.filter(restaurant=item).all() 는 데이터를 하나만 filter로 보내준건데, 왜 third_templates_third_detail.html 파일에서 사용할때 for문으로 불러와야만 하는지 헷갈리기에 밑에 적겠다.
 // 이 밑은 detail.html 파일의 일부분이다.
@@ -773,7 +773,7 @@ password = models.CharField(max_length=20, default=None, null=True)  # 기존에
                                                                          # 이 경우는 초반에도 패스워드 없이도 작동할 수 있게 하기위해 None으로 지정해준것이다.
                                                                          # default=None 이면, 모든 password값이 null값으로 설정되고, 그렇기에 뒤에 null=True 도 적어주어야한다.
 
-<third_views.py 파일의 update 메소드를, 비밀번호 검증 추가 기능 삽입을 위해 수정하였음.>
+<third_views.py 파일의 update 메소드를, 비밀번호 검증 추가 기능 삽입을 위하여 수정하였음.>
 def update(request):
     if request.method == 'POST' and 'id' in request.POST:
         item = get_object_or_404(Restaurant, pk=request.POST.get('id'))
@@ -783,6 +783,20 @@ def update(request):
         if form.is_valid() and password == item.password:  # and 이후의 코드는, 입력한 패스워드 DB의 패스워드와 일치하는지 검증하는 코드이다.
             item = form.save()
 
+------------------------------------------------------------------------------------------------------------
 
+<third_views.py 파일의 delete 메소드를, 비밀번호 검증 추가 기능 삽입과 urls.py 파일에 패스파라미터 id를 활용하기 위하여 수정하였음.>
+def delete(request, id):
+    item = get_object_or_404(Restaurant, pk=id)
+    if request.method == 'POST' and 'password' in request.POST:
+        if item.password == request.POST.get('password') or item.password is None:  # 해당 id의 식당의 패스워드가 아직 정해지지않아 null값일때 그냥 바로 삭제할수있게 해줌.
+            item.delete()
+            return redirect('list')  # 리스트 화면으로 이동한다.
+        return redirect('restaurant-detail', id=id) # 만약 비밀번호가 입력되지 않았다면 상세페이지로 되돌아감.
+                                                    # 만약이게 html파일이었다면 <a href="{% url 'restaurant-detail' id=item.id %}"> </a> 와 같은 의미임.
+                                                    # 즉, 패스파라미터로 id값을 넘겨주며 urls.py 파일의 path name이 restaurant-detail 인 곳으로 이동함.
+    return render(request, 'third/delete.html', {'item': item})  # method가 GET으로 접근하였을때
+                                                                 # 어떤 item의 삭제 메소드인지는 알아야하니까 {'item': item}도 렌더링해준다.
+                                                                 # 참고로 third/delete.html 파일은, 삭제시 비밀번호 입력폼이다.
 
 ```
