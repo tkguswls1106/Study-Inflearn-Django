@@ -125,6 +125,9 @@ python manage.py makemigrations  // 정의한 models.py에 있는 모델링 코�
 			           // 만약 models.py 파일을 계속 수정하게되면 그때그때마다 python manage.py makemigrations를 호출하여 변화되는 코드들을 계속 0001_initial.py 파일에 업데이트 시켜줄수 있다. 데이터베이스 업데이트.
 python manage.py migrate  // 이주라는 뜻이다. 코드를 실행하게되면 db.sqlite3 이라는 파일이 생성된다(근데 나는 원래 생성되어있었음.). 이로써 여기까지 하면 DB생성 완료이다.
 
+참고로 아마 models.py 파일이 수정될때마다 python3 manage.py makemigrations 와 python3 manage.py migrate 모두 해주어야하며,
+forms.py 파일이 수정될때는 상관없이 안해줘도된다.
+
 <client가 server에 http 요청을 했을때의 그 흐름>
 1. 예를들어 클라이언트가 서버에 abc.com 사이트에 대한 데이터를 달라는 요청을 함.
 2. 장고 웹앱에서 url conf 모듈을 확인한다. (예를들어 abc.com/뒤에추가주소 이런게 있는지, path가 뭐가 있는지 등등)
