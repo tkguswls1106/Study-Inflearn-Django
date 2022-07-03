@@ -3,11 +3,11 @@ from third.models import Restaurant, Review
 from django.core.paginator import Paginator
 from third.forms import RestaurantForm, ReviewForm
 from django.http import HttpResponseRedirect
-
+from django.db.models import Count, Avg
 
 # Create your views here.
 def list(request):
-    restaurants = Restaurant.objects.all()  # restaurants라는 인스턴스 변수에 할당함.
+    restaurants = Restaurant.objects.all().annotate(reviews_count=Count('review')).annotate(average_point=Avg('review__point'))  # restaurants라는 인스턴스 변수에 할당함.
     paginator = Paginator(restaurants, 5)  # 한페이지당 5개씩 보여주겠다는 뜻이다. 참고로 Paginator는 import해서 사용해주어야한다.
 
     page = request.GET.get('page')  # 현재 보고있는 페이지가 어떤 페이지를 조회를 원했는지 url의 parameter(파라미터)에서 받아옴.
@@ -19,6 +19,32 @@ def list(request):
         'restaurants': items
     }
     return render(request, 'third/list.html', context)
+# views.py 파일의 def list 메소드에서
+# Restaurant 모델클래스에서 릴레이션명으로 상대 모델클래스에 접근하기위해서 'review'를 사용하게되고,
+# 여기선 Count를 세는데에 당사자인 review 밖에 필요하지않기때문에 'review'만 사용한다. 물론 이번 코드의 경우지 보편적인것이 아니니 주의하자.
+# restaurants = Restaurant.objects.all().annotate(reviews_count=Count('review')) 을 적어줌으로써
+# annotate를 사용하였으므로,
+# Restaurant 모델클래스의 'review' 릴레이션명을 불러와 그걸 Count 연산을 통해 결과값을 reviews_count 라는 속성을 만들어 그 안에 값을 할당하고,
+# models.py 파일의 Restaurant 모델클래스 안에도 reviews_count 속성을 새로 추가해주게 되는것이다.
+# 그러면 이제 reviews_count라는 속성으로 꺼내서 쓸 수 있게 된다.
+# list.html 파일에서
+# {% for item in restaurants %}
+#     리뷰: {{ item.reviews_count }}개
+# {% endfor %}
+# 이렇게 사용하여 헤당 페이지의 특정 식당의 리뷰가 몇개인지 알려주는 코드를 적을 수 있게 된것이다.
+# 이로써 annotate 메소드와 연산 메소드 사용을 통하여, aggregation을 해주게 된것이다.
+# 참고로 annotate는 .annotate()로 계속 뒤에 덧붙여서 여러개를 적을 수 있다.
+# 예를들어 restaurants = Restaurant.objects.all().annotate(reviews_count=Count('review')).annotate(average_point=Avg('review__point')) 이런식으로 말이다.
+# 그리고 restaurants = Restaurant.objects.all().annotate(average_point=Avg('review__point')) 부분은
+# 저 위의 Count 예시와는 다르게, 릴레이션명인 review 자체만 필요한것이 아닌, 리뷰평점의 평균값을 연산하여 구하고 싶은것이므로,
+# Restaurant 모델클래스에서 릴레이션명인 review로 접근하여 Review 모델클래스로 접근하고, 그 속성인 point으로 접근하여야 하므로,
+# review__point 를 사용하게 된것이다. 결국은 해당 식당의 리뷰들의 평점 평균점수를 구하게 되고, 그 결과값을 average_point 속성에 할당하게된것이다.
+# 아마 average_point 속성도 models.py 파일의 Restaurant 모델클래스의 속성 목록에 자동으로 추가가 되었을것이다.
+# 그러면 이제 average_point라는 속성으로 꺼내서 쓸 수 있게 된다.
+# list.html 파일에서
+# {% for item in restaurants %}
+#     평점: {{ item.average_point }}점
+# {% endfor %}
 
 def create(request):
     if request.method == 'POST':
