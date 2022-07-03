@@ -770,6 +770,16 @@ password = models.CharField(max_length=20, default=None, null=True)  # 기존에
                                                                          # 이 경우는 초반에도 패스워드 없이도 작동할 수 있게 하기위해 None으로 지정해준것이다.
                                                                          # default=None 이면, 모든 password값이 null값으로 설정되고, 그렇기에 뒤에 null=True 도 적어주어야한다.
 
+<third_views.py 파일의 update 메소드를, 비밀번호 검증 추가 기능 삽입을 위해 수정하였음.>
+def update(request):
+    if request.method == 'POST' and 'id' in request.POST:
+        item = get_object_or_404(Restaurant, pk=request.POST.get('id'))
+        password = request.POST.get('password', '')  # 'password' 값이 정상적으로 전달이 되었다면 'password' 값을 password 변수에 할당하고,
+                                                     # 'password' 값이 정상적으로 전달되지 않았다면, 빈 문자열인 ''값이 password 변수에 할당되는 것이다.
+        form = UpdateRestaurantForm(request.POST, instance=item)  # 어차피 UpdateRestaurantForm 모델폼클래스도 model = Restaurant 라서, RestaurantForm 모델폼클래스와 마찬가지로 리퀘스트로 받아온 게시물 수정 필드값을 그대로 저장해줄 수 있음.
+        if form.is_valid() and password == item.password:  # and 이후의 코드는, 입력한 패스워드 DB의 패스워드와 일치하는지 검증하는 코드이다.
+            item = form.save()
+
 
 
 ```
