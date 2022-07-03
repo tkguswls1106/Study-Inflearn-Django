@@ -146,11 +146,19 @@ def detail(request, id):  # urls.py 파일에서 패스파라미터로 id값을 
         return render(request, 'third/detail.html', {'item': item, 'reviews': reviews})
     return HttpResponseRedirect('/third/list/')  # 만약 정상적으로 id가 오지않았을때(= 값이 제대로 전달되지 않았다), 리스트 화면으로 이동한다.
 
-def delete(request):
-    if 'id' in request.GET:
-        item = get_object_or_404(Restaurant, pk=request.GET.get('id'))
-        item.delete()
-    return HttpResponseRedirect('/third/list/')  # 리스트 화면으로 이동한다. 이 코드줄은 if문 조건에 맞던안맞던간에 무조건 실행된다.
+def delete(request, id):
+    item = get_object_or_404(Restaurant, pk=id)
+    if request.method == 'POST' and 'password' in request.POST:
+        if item.password == request.POST.get('password') or item.password is None:  # 해당 id의 식당의 패스워드가 아직 정해지지않아 null값일때 그냥 바로 삭제할수있게 해줌.
+            item.delete()
+            return redirect('list')  # 리스트 화면으로 이동한다.
+        return redirect('restaurant-detail', id=id) # 만약 비밀번호가 입력되지 않았다면 상세페이지로 되돌아감.
+                                                    # 만약이게 html파일이었다면 <a href="{% url 'restaurant-detail' id=item.id %}"> </a> 와 같은 의미임.
+                                                    # 즉, 패스파라미터로 id값을 넘겨주며 urls.py 파일의 path name이 restaurant-detail 인 곳으로 이동함.
+    return render(request, 'third/delete.html', {'item': item})  # method가 GET으로 접근하였을때
+                                                                 # 어떤 item의 삭제 메소드인지는 알아야하니까 {'item': item}도 렌더링해준다.
+                                                                 # 참고로 third/delete.html 파일은, 삭제시 비밀번호 입력폼이다.
+
 
 def review_create(request, restaurant_id):
     if request.method == 'POST':
