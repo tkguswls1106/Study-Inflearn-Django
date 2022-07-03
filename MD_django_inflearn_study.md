@@ -705,6 +705,66 @@ def review_list(request):
 
 ------------------------------------------------------------------------------------------------------------
 
+aggregation: 릴레이션 관계의 모델 클래스끼리 데이터를 뽑아와서 관련 정보를 연산하거나 (예를들어 리뷰의 개수합, 리뷰의 평균 점수) 등등을 해서 그 결과를 보내주는 것을 의미한다. django의 공식 문서의 aggregation 이다.
+각 음식점의 리뷰 수를 구하거나 평점을 음식점 목록 화면에서 바로 표시할 수 있도록 해주는 방법으로도 사용할 수 있다.
+
+Django orm에서는 annotate라는 메소드를 제공한다. annotate는 조회되는 각 레코드들에 대해서 계산을 수행해서 데이터를 뽑아낼 때 사용한다. annotate와 같이 사용할 수 있는 계산으로는 Count, Sum, Avg 등이 존재한다.
+from django.db.models import Count
+
+릴레이션을 사용하게되면,  장고의 규칙상 models.py 파일에
+서로 각 모델클래스에 릴레이션되어있는 상대 클래스 이름을 소문자로 바꾼 이름의 속성이 서로에게 새로 자동으로 생기게 된다.
+정확히 말하자면 속성이라기보다 릴레이션명으로써,
+릴레이션명으로 접근함으로써 상대 모델클래스에 접근하여 그 자체로 연산하는 데에 사용할수도 있고, 릴레이션명에 __ 붙이고 속성명을 적어줌으로써 상대 모델클래스의 속성에도 접근하여 연산하는데 사용할 수 있게 된다.
+즉, 릴레이션명은 그냥 속성이라기보단, 상대 모델클래스에 접근하는 용도의 연결고리와 속성의 특징 두가지를 모두 갖추었다고 보면 된다.
+예를들어
+일단 Review 모델클래스에서 restaurant라는 속성에 Foreignkey로 Restaurant 모델클래스에 릴레이션 해줌으로써 두 모델클래스가 서로 릴레이션 관계가 되었고,
+그러면 Review 모델클래스의 릴레이션명이 Restaurant 모델클래스의 소문자로 restaurant 속성이 새로 생긴것이고,
+Restaurant 모델클래스에도 릴레이션명으로 Review 모델클래스의 소문자로 review 라는 속성이 새로 생긴것이다.
+그러면 이제 이 릴레이션명을 이용하여 annotate를 사용해줄 수 있는것이다.
+
+------------------------------------------
+
+.annotate(         counts            =     Count         ('review')   )
+      {연산 결과를 저장할 원하는 속성명 적기}   {ORM 연산 메소드}  {'relation 이름'}
+
+views.py 파일의 def list 메소드에서
+Restaurant 모델클래스에서 릴레이션명으로 상대 모델클래스에 접근하기위해서 'review'를 사용하게되고,
+여기선 Count를 세는데에 당사자인 review 자체로밖에 필요하지않기때문에 'review'만 사용한다. 물론 이번 코드의 경우지 보편적인것이 아니니 주의하자.
+restaurants = Restaurant.objects.all().annotate(reviews_count=Count('review')) 을 적어줌으로써
+annotate를 사용하였으므로,
+Restaurant 모델클래스의 'review' 릴레이션명을 불러와 그걸 Count 연산을 통해 결과값을 reviews_count 라는 속성을 만들어 그 안에 값을 할당하고,
+models.py 파일의 Restaurant 모델클래스 안에도 reviews_count 속성을 새로 추가해주게 되는것이다.
+그러면 이제 reviews_count라는 속성으로 꺼내서 쓸 수 있게 된다.
+list.html 파일에서
+{% for item in restaurants %}
+    리뷰: {{ item.reviews_count }}개
+{% endfor %}
+이렇게 사용하여 헤당 페이지의 특정 식당의 리뷰가 몇개인지 알려주는 코드를 적을 수 있게 된것이다.
+이로써 annotate 메소드와 연산 메소드 사용을 통하여, aggregation을 해주게 된것이다.
+참고로 annotate는 .annotate()로 계속 뒤에 덧붙여서 여러개를 적을 수 있다.
+예를들어 restaurants = Restaurant.objects.all().annotate(reviews_count=Count('review')).annotate(average_point=Avg('review__point')) 이런식으로 말이다.
+
+------------------------------------------
+
+.annotate(        avgs               =      Avg               ('review__point')   )
+      {연산 결과를 저장할 원하는 속성명 적기}   {ORM 연산 메소드}  {'relation 이름 + __ + 연산 대상 속성명'}
+
+참고로 _는 2개를 적어주어야한다. 이는 장고 aggregation 규칙이다. => __
+
+views.py 파일의 def list 메소드에서
+restaurants = Restaurant.objects.all().annotate(average_point=Avg('review__point'))
+저 위의 Count 예시와는 다르게, 릴레이션명인 review 자체만 필요한것이 아닌, 리뷰평점의 평균값을 연산하여 구하고 싶은것이므로,
+Restaurant 모델클래스에서 릴레이션명인 review로 접근하여 Review 모델클래스로 접근하고, 그 속성인 point으로 접근하여야 하므로,
+review__point 를 사용하게 된것이다. 결국은 해당 식당의 리뷰들의 평점 평균점수를 구하게 되고, 그 결과값을 average_point 속성에 할당하게된것이다.
+아마 average_point 속성도 models.py 파일의 Restaurant 모델클래스의 속성 목록에 자동으로 추가가 되었을것이다.
+그러면 이제 average_point라는 속성으로 꺼내서 쓸 수 있게 된다.
+list.html 파일에서
+{% for item in restaurants %}
+    평점: {{ item.average_point }}점
+{% endfor %}
+
+------------------------------------------------------------------------------------------------------------
+
 
 
 ```
