@@ -85,8 +85,9 @@ def update(request):  # 리퀘스트와 데이터베이스를 직접 활용해�
     if request.method == 'POST' and 'id' in request.POST:  # id값 없이 POST로 온 데이터가 있다면 그건 잘못 온 데이터이니까 'id' in request.POST 도 적어줘야 한다.
         # item = Restaurant.objects.get(pk=request.POST.get('id'))  # 참고로 request.POST.get('id') 가 한묶음이다.
         item = get_object_or_404(Restaurant, pk=request.POST.get('id'))  # id값이 없는 데이터라 로딩안될때 사이트에 에러 안뜨고 'Page not found (404)'이라는 화면만 뜨고, 에러 내용이 뜨지 않는다. 참고로 shortcuts도 사용했다.
-        password = request.POST.get('password', '')  # 'password' 값이 정상적으로 전달이 되었다면 'password' 값을 password 변수에 할당하고,
-                                                     # 'password' 값이 정상적으로 전달되지 않았다면, 빈 문자열인 ''값이 password 변수에 할당되는 것이다.
+        password = request.POST.get('password', '')  # 수정된 데이터가 POST방식으로 update메소드로 전달되어왔고, 그 데이터는 models.py 파일의 Restaurant 모델클래스의 정보이다. 그렇기때문에 괄호안의 'password'는 Restaurant 모델클래스의 'password'필드를 의미한다.
+                                                     # 그 'password' 필드 값이 정상적으로 request.POST 전달이 되어왔다면 'password'필드의 DB value 값을 password 변수에 할당하고,
+                                                     # 그 'password' 필드 값이 정상적으로 전달되어오지 않았다면, 빈 문자열인 ''값이 password 변수에 할당되는 것이다.
         form = UpdateRestaurantForm(request.POST, instance=item)  # 어차피 UpdateRestaurantForm 모델폼클래스도 model = Restaurant 라서, RestaurantForm 모델폼클래스와 마찬가지로 리퀘스트로 받아온 게시물 수정 필드값을 그대로 저장해줄 수 있음.
         if form.is_valid() and password == item.password:  # and 이후의 코드는, 입력한 패스워드 DB의 패스워드와 일치하는지 검증하는 코드이다.
             item = form.save()
